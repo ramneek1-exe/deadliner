@@ -9,13 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "ics": "^3.8.1",
+    "lucide-react": "^0.564.0",
     "next": "16.1.6",
+    "openai": "^6.22.0",
+    "pdf-parse": "^2.4.5",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-dropzone": "^15.0.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
