@@ -166,13 +166,13 @@ export function ReviewStep({
               <div className="flex gap-1 ml-3">
                 <button
                   onClick={() => setEditingEvent(event)}
-                  className="rounded-md p-1.5 hover:bg-foreground/5 transition-colors"
+                  className="rounded-md p-2.5 hover:bg-foreground/5 transition-colors"
                 >
                   <Pencil className="h-4 w-4 text-muted" />
                 </button>
                 <button
                   onClick={() => handleDelete(event.id)}
-                  className="rounded-md p-1.5 hover:bg-danger/10 transition-colors"
+                  className="rounded-md p-2.5 hover:bg-danger/10 transition-colors"
                 >
                   <Trash2 className="h-4 w-4 text-danger" />
                 </button>

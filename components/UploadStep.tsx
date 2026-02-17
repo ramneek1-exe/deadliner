@@ -89,7 +89,7 @@ export function UploadStep({ onEventsExtracted }: UploadStepProps) {
     <div className="animate-fade-in-up">
       <div
         {...getRootProps()}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-16 transition-colors ${
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8 sm:p-16 transition-colors ${
           loading
             ? "pointer-events-none border-border"
             : isDragActive
@@ -101,7 +101,7 @@ export function UploadStep({ onEventsExtracted }: UploadStepProps) {
 
         {loading ? (
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-10 w-10 animate-spin text-muted" />
+            <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-muted" />
             <p className="text-sm font-medium text-foreground">
               {STATUS_MESSAGES[statusIndex]}
             </p>
@@ -109,12 +109,12 @@ export function UploadStep({ onEventsExtracted }: UploadStepProps) {
         ) : (
           <div className="flex flex-col items-center gap-4">
             <Upload
-              className={`h-10 w-10 ${
+              className={`h-8 w-8 sm:h-10 sm:w-10 ${
                 isDragActive ? "text-foreground" : "text-muted"
               }`}
             />
             <div className="text-center">
-              <p className="text-lg font-medium text-foreground">
+              <p className="text-base sm:text-lg font-medium text-foreground">
                 {isDragActive
                   ? "Drop your syllabus here"
                   : "Drop your syllabus here"}

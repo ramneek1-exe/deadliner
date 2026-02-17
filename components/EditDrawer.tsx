@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { X } from "lucide-react";
 import type { DeadlineEvent, EventType } from "@/lib/types";
 
@@ -92,7 +92,7 @@ function EditForm({
               {time && (
                 <button
                   onClick={() => setTime("")}
-                  className="rounded-md border border-border px-3 py-2 text-xs text-muted hover:bg-foreground/5 transition-colors"
+                  className="rounded-md border border-border px-4 py-2.5 text-xs text-muted hover:bg-foreground/5 transition-colors"
                 >
                   Clear
                 </button>
@@ -150,37 +150,67 @@ function EditForm({
 }
 
 export function EditDrawer({ event, onSave, onClose }: EditDrawerProps) {
+  const [closing, setClosing] = useState(false);
+
+  const handleClose = useCallback(() => {
+    if (!closing) setClosing(true);
+  }, [closing]);
+
+  const handleAnimationEnd = useCallback(
+    (e: React.AnimationEvent<HTMLDivElement>) => {
+      // Only respond to our own animation, not bubbled events from children
+      if (e.target !== e.currentTarget) return;
+      if (closing) {
+        setClosing(false);
+        onClose();
+      }
+    },
+    [closing, onClose]
+  );
+
   const isOpen = event !== null;
+  if (!isOpen && !closing) return null;
+
+  const isExiting = closing;
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity ${
-          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        onClick={onClose}
+        className="fixed inset-0 z-40"
+        style={{
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          backdropFilter: "blur(4px)",
+          WebkitBackdropFilter: "blur(4px)",
+          animation: `${isExiting ? "drawerBackdropOut" : "drawerBackdropIn"} ${isExiting ? "0.25s" : "0.25s"} ease-out both`,
+        }}
+        onClick={handleClose}
       />
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col border-l border-border bg-background transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed inset-x-0 bottom-0 top-auto rounded-t-xl max-h-[85vh] sm:top-0 sm:bottom-auto sm:right-0 sm:left-auto sm:rounded-none sm:max-h-full z-50 flex sm:h-full w-full max-w-full sm:max-w-md flex-col bg-background border border-border ${isExiting ? "drawer-panel-exit" : "drawer-panel"}`}
+        style={{
+          boxShadow: "-12px 0 40px rgba(0, 0, 0, 0.2), -2px 0 8px rgba(0, 0, 0, 0.1)",
+          animation: isExiting
+            ? "drawerSlideOut 0.25s cubic-bezier(0.4, 0, 1, 1) both"
+            : "drawerSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both",
+        }}
+        onAnimationEnd={handleAnimationEnd}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <h2 className="text-lg font-semibold">Edit Event</h2>
           <button
-            onClick={onClose}
-            className="rounded-md p-1 hover:bg-foreground/5 transition-colors"
+            onClick={handleClose}
+            className="rounded-md p-2 hover:bg-foreground/5 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {event && (
-          <EditForm key={event.id} event={event} onSave={onSave} onClose={onClose} />
+          <EditForm key={event.id} event={event} onSave={onSave} onClose={handleClose} />
         )}
       </div>
     </>

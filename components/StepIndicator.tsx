@@ -2,6 +2,7 @@ import type { WizardStep } from "@/lib/types";
 
 interface StepIndicatorProps {
   currentStep: WizardStep;
+  compact?: boolean;
 }
 
 const STEPS: { key: WizardStep; label: string }[] = [
@@ -14,8 +15,64 @@ function getStepIndex(step: WizardStep): number {
   return STEPS.findIndex((s) => s.key === step);
 }
 
-export function StepIndicator({ currentStep }: StepIndicatorProps) {
+export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
   const currentIndex = getStepIndex(currentStep);
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-0">
+        {STEPS.map((step, i) => {
+          const isActive = i === currentIndex;
+          const isCompleted = i < currentIndex;
+
+          return (
+            <div key={step.key} className="flex items-center">
+              {i > 0 && (
+                <div
+                  className={`h-px w-8 ${
+                    isCompleted ? "bg-foreground" : "bg-border"
+                  }`}
+                />
+              )}
+              <div className="flex items-center gap-1.5">
+                <div
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold transition-colors ${
+                    isActive || isCompleted
+                      ? "bg-foreground text-background"
+                      : "border border-border text-muted"
+                  }`}
+                >
+                  {isCompleted ? (
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="2,6 5,9 10,3" />
+                    </svg>
+                  ) : (
+                    i + 1
+                  )}
+                </div>
+                <span
+                  className={`hidden sm:inline text-xs ${
+                    isActive ? "font-medium text-foreground" : "text-muted"
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className="mb-10 flex items-center justify-center gap-0">

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { StepIndicator } from "@/components/StepIndicator";
 import { UploadStep } from "@/components/UploadStep";
+import { Faq } from "@/components/Faq";
 import { ReviewStep } from "@/components/ReviewStep";
 import { ExportStep } from "@/components/ExportStep";
 import type { WizardStep, DeadlineEvent } from "@/lib/types";
@@ -23,11 +23,12 @@ export default function Home() {
   };
 
   return (
-    <AppShell>
-      <StepIndicator currentStep={step} />
-
+    <AppShell step={step}>
       {step === "upload" && (
-        <UploadStep onEventsExtracted={handleEventsExtracted} />
+        <>
+          <UploadStep onEventsExtracted={handleEventsExtracted} />
+          <Faq />
+        </>
       )}
 
       {step === "review" && (

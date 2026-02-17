@@ -12,6 +12,7 @@
 - **Styling:** Use Tailwind utility classes.
 - **State:** Use `useState` for local state.
 - **Types:** Explicitly type all props and API responses.
+- **Fonts:** Using `geist` npm package (`geist/font/sans`, `geist/font/mono`, `geist/font/pixel`) in `app/layout.tsx`.
 - **API Routes:** Use Next.js App Router standard (`app/api/.../route.ts`).
 
 ## Error Handling
