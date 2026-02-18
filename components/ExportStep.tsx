@@ -48,22 +48,27 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
 
   const handleDownload = useCallback(() => {
     const blob = generateBlob();
+    // Use a real <a> with download attribute; navigate directly as fallback for mobile
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "deadlines-all-courses.ics";
+    a.style.display = "none";
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Fallback: if click didn't trigger download (mobile Safari), navigate directly
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
   }, [generateBlob]);
 
   const handleAddToCalendar = useCallback(() => {
     const blob = generateBlob();
     const url = URL.createObjectURL(blob);
-    window.open(url);
-    // Revoke after a delay to allow the OS to pick up the file
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    // Navigate directly instead of window.open — avoids popup blockers on mobile
+    window.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
   }, [generateBlob]);
 
   return (
