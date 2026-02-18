@@ -27,9 +27,9 @@ export function AppShell({ children, step }: AppShellProps) {
             WebkitBackdropFilter: "blur(12px)",
           }}
         >
-          <div className="flex items-center justify-between">
-            <h1 className="flex items-center gap-1.5 text-xl font-extrabold tracking-tighter text-foreground">
-              <Logo size={20} />
+          <div className="flex items-center justify-between pr-3">
+            <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tighter text-foreground">
+              <Logo size={28} />
               Deadliner
             </h1>
             <StepIndicator currentStep={step} compact />

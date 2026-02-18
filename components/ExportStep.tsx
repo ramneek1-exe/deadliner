@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download } from "lucide-react";
 import { CheckCircleFill } from "geist-icons";
 import { generateICS } from "@/lib/generate-ics";
@@ -42,34 +42,21 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
     setPlatform(detectPlatform());
   }, []);
 
-  const generateBlob = useCallback(() => {
-    return generateICS(events);
+  // Pre-generate the blob URL so real <a> tags can be used (critical for mobile)
+  const blobUrl = useMemo(() => {
+    const blob = generateICS(events);
+    return URL.createObjectURL(blob);
   }, [events]);
 
-  const handleDownload = useCallback(() => {
-    const blob = generateBlob();
-    // Use a real <a> with download attribute; navigate directly as fallback for mobile
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "deadlines-all-courses.ics";
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    // Fallback: if click didn't trigger download (mobile Safari), navigate directly
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 1000);
-  }, [generateBlob]);
+  // Cleanup blob URL on unmount
+  useEffect(() => {
+    return () => URL.revokeObjectURL(blobUrl);
+  }, [blobUrl]);
 
-  const handleAddToCalendar = useCallback(() => {
-    const blob = generateBlob();
-    const url = URL.createObjectURL(blob);
-    // Navigate directly instead of window.open — avoids popup blockers on mobile
-    window.location.href = url;
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-  }, [generateBlob]);
+  const linkClasses =
+    "flex items-center justify-center gap-2.5 rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:opacity-90 transition-opacity no-underline";
+  const secondaryClasses =
+    "flex items-center justify-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-muted hover:bg-foreground/5 transition-colors no-underline";
 
   return (
     <div className="animate-fade-in-up flex flex-col items-center py-12">
@@ -85,42 +72,34 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
       </p>
 
       <div className="mt-8 flex flex-col items-center gap-3">
-        {/* Platform-specific primary button */}
+        {/* Platform-specific primary button — real <a> tags for mobile compatibility */}
         {platform === "ios" ? (
-          <button
-            onClick={handleAddToCalendar}
-            className="flex items-center gap-2.5 rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:opacity-90 transition-opacity"
-          >
+          <a href={blobUrl} className={linkClasses}>
             <AppleLogo className="h-4 w-4" />
             Add to Apple Calendar
-          </button>
+          </a>
         ) : platform === "android" ? (
-          <button
-            onClick={handleAddToCalendar}
-            className="flex items-center gap-2.5 rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:opacity-90 transition-opacity"
-          >
+          <a href={blobUrl} className={linkClasses}>
             <GoogleCalendarLogo className="h-4 w-4" />
             Add to Google Calendar
-          </button>
+          </a>
         ) : (
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:opacity-90 transition-opacity"
-          >
+          <a href={blobUrl} download="deadlines-all-courses.ics" className={linkClasses}>
             <Download className="h-4 w-4" />
             Download .ics
-          </button>
+          </a>
         )}
 
         {/* Secondary download option for mobile users */}
         {platform !== "desktop" && (
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-muted hover:bg-foreground/5 transition-colors"
+          <a
+            href={blobUrl}
+            download="deadlines-all-courses.ics"
+            className={secondaryClasses}
           >
             <Download className="h-3.5 w-3.5" />
             Download .ics file instead
-          </button>
+          </a>
         )}
       </div>
 
