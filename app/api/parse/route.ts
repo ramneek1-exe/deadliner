@@ -88,10 +88,25 @@ Respond with JSON only in this exact format:
 }`;
 
 async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
-  const { PDFParse } = await import("pdf-parse");
-  const pdf = new PDFParse({ data: new Uint8Array(buffer) });
-  const result = await pdf.getText();
-  return result.text.trim();
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(buffer) });
+  const doc = await loadingTask.promise;
+  const parts: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items
+      .filter((item: Record<string, unknown>) => "str" in item)
+      .map((item) => {
+        const textItem = item as { str: string; hasEOL: boolean };
+        return textItem.str + (textItem.hasEOL ? "\n" : "");
+      })
+      .join("");
+    parts.push(pageText);
+    page.cleanup();
+  }
+  await doc.destroy();
+  return parts.join("\n").trim();
 }
 
 async function extractTextFromDOCX(buffer: ArrayBuffer): Promise<string> {
