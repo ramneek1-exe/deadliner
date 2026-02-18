@@ -29,14 +29,16 @@ function easeInOutQuad(x: number): number {
 }
 
 const BLURBS = [
-  "too many deadlines to focus on?",
-  "can't keep track of your assignments?",
-  "oh shoot! when was the final exam?",
+  "Too many deadlines to focus on?",
+  "Can't keep track of your assignments?",
+  "Oh shoot! When was the final exam?",
   "Dang it! I missed the project proposal deadline!",
-  "wait, was that due today or tomorrow?",
+  "Wait, was that due today or tomorrow?",
+  "I gotta lock in dude.🔒",
   "I swear the midterm was next week...",
-  "did anyone else forget about the lab report?",
-  "three assignments due the same day?!",
+  "Did anyone else forget about the lab report?",
+  "Three assignments due the same day?!",
+  "My sleep schedule is cooked.💀"
 ];
 
 const TIME_PER_BLURB = 5; // seconds each blurb is on screen
@@ -70,6 +72,8 @@ function generateBlurbConfigs(): BlurbConfig[] {
     { x: 75 + rand() * 8, y: 56 + rand() * 5 },
     { x: 14 + rand() * 8, y: 72 + rand() * 6 },
     { x: 74 + rand() * 8, y: 72 + rand() * 6 },
+    { x: 12 + rand() * 6, y: 92 + rand() * 5 },
+    { x: 75 + rand() * 8, y: 92 + rand() * 5 }
   ];
 
   return BLURBS.map((text, i) => ({
