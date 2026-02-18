@@ -273,7 +273,7 @@ export function ReviewStep({
                               </td>
                               <td className="px-4 py-2.5 text-muted">
                                 {editingField?.id === event.id &&
-                                editingField.field === "date" ? (
+                                  editingField.field === "date" ? (
                                   <input
                                     type="date"
                                     defaultValue={event.date}
@@ -304,7 +304,7 @@ export function ReviewStep({
                               </td>
                               <td className="px-4 py-2.5 text-muted">
                                 {editingField?.id === event.id &&
-                                editingField.field === "time" ? (
+                                  editingField.field === "time" ? (
                                   <input
                                     type="time"
                                     defaultValue={event.time ?? ""}
@@ -377,7 +377,7 @@ export function ReviewStep({
                               <p className="font-medium">{event.title}</p>
                               <div className="mt-1 flex flex-wrap items-center gap-x-1 text-sm text-muted">
                                 {editingField?.id === event.id &&
-                                editingField.field === "date" ? (
+                                  editingField.field === "date" ? (
                                   <input
                                     type="date"
                                     defaultValue={event.date}
@@ -407,7 +407,7 @@ export function ReviewStep({
                                 )}
                                 <span>&middot;</span>
                                 {editingField?.id === event.id &&
-                                editingField.field === "time" ? (
+                                  editingField.field === "time" ? (
                                   <input
                                     type="time"
                                     defaultValue={event.time ?? ""}

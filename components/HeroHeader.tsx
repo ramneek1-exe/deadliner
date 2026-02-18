@@ -205,43 +205,43 @@ export function HeroHeader({ children }: HeroHeaderProps) {
             pointerEvents: "none",
           }}
         >
-            <span
-              style={{
-                fontSize: "0.75rem",
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                color: "var(--muted)",
-              }}
-            >
-              Scroll down
-            </span>
-            <svg
-              width="20"
-              height="28"
-              viewBox="0 0 20 28"
-              fill="none"
-              style={{ color: "var(--muted)" }}
-            >
-              {/* Mouse outline */}
-              <rect
-                x="1"
-                y="1"
-                width="18"
-                height="26"
-                rx="9"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-              {/* Scroll wheel dot — animated */}
-              <circle
-                className="scroll-dot"
-                cx="10"
-                cy="8"
-                r="2"
-                fill="currentColor"
-              />
-            </svg>
-          </div>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "var(--muted)",
+            }}
+          >
+            Scroll down
+          </span>
+          <svg
+            width="20"
+            height="28"
+            viewBox="0 0 20 28"
+            fill="none"
+            style={{ color: "var(--muted)" }}
+          >
+            {/* Mouse outline */}
+            <rect
+              x="1"
+              y="1"
+              width="18"
+              height="26"
+              rx="9"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            {/* Scroll wheel dot — animated */}
+            <circle
+              className="scroll-dot"
+              cx="10"
+              cy="8"
+              r="2"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
 
         {/* Content row */}
         <div
@@ -315,9 +315,10 @@ export function HeroHeader({ children }: HeroHeaderProps) {
           {/* Step indicator slot */}
           <div
             style={{
+              position: "absolute",
+              right: "clamp(16px, 4vw, 24px)",
               opacity: childrenOpacity,
               pointerEvents: childrenOpacity < 0.1 ? "none" : "auto",
-              flexShrink: 0,
             }}
           >
             {children}

@@ -21,7 +21,7 @@ export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
 
   if (compact) {
     return (
-      <div className="flex items-center gap-0">
+      <div className="flex items-center gap-0 pr-5 sm:pr-0">
         {STEPS.map((step, i) => {
           const isActive = i === currentIndex;
           const isCompleted = i < currentIndex;
@@ -30,18 +30,16 @@ export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
             <div key={step.key} className="flex items-center">
               {i > 0 && (
                 <div
-                  className={`h-px w-8 ${
-                    isCompleted ? "bg-foreground" : "bg-border"
-                  }`}
+                  className={`h-px w-8 ${isCompleted ? "bg-foreground" : "bg-border"
+                    }`}
                 />
               )}
               <div className="flex items-center gap-1.5">
                 <div
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold transition-colors ${
-                    isActive || isCompleted
-                      ? "bg-foreground text-background"
-                      : "border border-border text-muted"
-                  }`}
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold transition-colors ${isActive || isCompleted
+                    ? "bg-foreground text-background"
+                    : "border border-border text-muted"
+                    }`}
                 >
                   {isCompleted ? (
                     <Check size={11} />
@@ -50,9 +48,8 @@ export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
                   )}
                 </div>
                 <span
-                  className={`hidden sm:inline text-xs ${
-                    isActive ? "font-medium text-foreground" : "text-muted"
-                  }`}
+                  className={`hidden sm:inline text-xs ${isActive ? "font-medium text-foreground" : "text-muted"
+                    }`}
                 >
                   {step.label}
                 </span>
@@ -74,18 +71,16 @@ export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
           <div key={step.key} className="flex items-center">
             {i > 0 && (
               <div
-                className={`h-px w-10 ${
-                  isCompleted ? "bg-foreground" : "bg-border"
-                }`}
+                className={`h-px w-10 ${isCompleted ? "bg-foreground" : "bg-border"
+                  }`}
               />
             )}
             <div className="flex flex-col items-center gap-1.5">
               <div
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${
-                  isActive || isCompleted
-                    ? "bg-foreground text-background"
-                    : "border border-border text-muted"
-                }`}
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${isActive || isCompleted
+                  ? "bg-foreground text-background"
+                  : "border border-border text-muted"
+                  }`}
               >
                 {isCompleted ? (
                   <Check size={12} />
@@ -94,9 +89,8 @@ export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
                 )}
               </div>
               <span
-                className={`text-xs ${
-                  isActive ? "font-medium text-foreground" : "text-muted"
-                }`}
+                className={`text-xs ${isActive ? "font-medium text-foreground" : "text-muted"
+                  }`}
               >
                 {step.label}
               </span>
