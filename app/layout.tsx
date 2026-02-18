@@ -10,6 +10,20 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://deadliner.net"),
   title: "Deadliner",
   description: "Syllabus to calendar in seconds.",
+  icons: {
+    icon: [
+      {
+        url: "/favicon-light.svg",
+        type: "image/svg+xml",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/favicon-dark.svg",
+        type: "image/svg+xml",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
   openGraph: {
     title: "Deadliner",
     description: "Syllabus to calendar in seconds.",
