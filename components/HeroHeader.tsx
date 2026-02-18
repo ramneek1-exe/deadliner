@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useScrollProgress } from "@/hooks/useScrollProgress";
+import { Logo } from "@/components/Logo";
 
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
@@ -61,26 +62,26 @@ function generateBlurbConfigs(): BlurbConfig[] {
   // Place blurbs OUTSIDE the center title/tagline zone
   // Keep x: 15-85%, y: 15-85% so drift doesn't push them off viewport
   const positions: Array<{ x: number; y: number }> = [
-    { x: 15 + rand() * 8, y: 15 + rand() * 6 },
-    { x: 75 + rand() * 10, y: 15 + rand() * 6 },
-    { x: 15 + rand() * 8, y: 35 + rand() * 6 },
-    { x: 75 + rand() * 10, y: 35 + rand() * 6 },
-    { x: 15 + rand() * 8, y: 58 + rand() * 6 },
-    { x: 75 + rand() * 10, y: 58 + rand() * 6 },
-    { x: 18 + rand() * 10, y: 75 + rand() * 8 },
-    { x: 72 + rand() * 10, y: 75 + rand() * 8 },
+    { x: 12 + rand() * 6, y: 18 + rand() * 5 },
+    { x: 75 + rand() * 8, y: 18 + rand() * 5 },
+    { x: 12 + rand() * 6, y: 36 + rand() * 5 },
+    { x: 75 + rand() * 8, y: 36 + rand() * 5 },
+    { x: 12 + rand() * 6, y: 56 + rand() * 5 },
+    { x: 75 + rand() * 8, y: 56 + rand() * 5 },
+    { x: 14 + rand() * 8, y: 72 + rand() * 6 },
+    { x: 74 + rand() * 8, y: 72 + rand() * 6 },
   ];
 
   return BLURBS.map((text, i) => ({
     text,
     x: positions[i].x,
     y: positions[i].y,
-    dx1: (rand() - 0.5) * 140,
-    dy1: (rand() - 0.5) * 90,
-    dx2: (rand() - 0.5) * 120,
-    dy2: (rand() - 0.5) * 80,
-    dx3: (rand() - 0.5) * 140,
-    dy3: (rand() - 0.5) * 90,
+    dx1: (rand() - 0.5) * 80,
+    dy1: (rand() - 0.5) * 50,
+    dx2: (rand() - 0.5) * 70,
+    dy2: (rand() - 0.5) * 45,
+    dx3: (rand() - 0.5) * 80,
+    dy3: (rand() - 0.5) * 50,
     floatDuration: 10 + rand() * 6,
     delay: i * TIME_PER_BLURB,
   }));
@@ -113,11 +114,13 @@ export function HeroHeader({ children }: HeroHeaderProps) {
 
   return (
     <div style={{ height: "115vh" }}>
-      {/* Sticky container */}
+      {/* Fixed container — stays at top for the entire page */}
       <div
         style={{
-          position: "sticky",
+          position: "fixed",
           top: 0,
+          left: 0,
+          right: 0,
           zIndex: 50,
           height: containerVh > 0 ? `${containerVh}vh` : `${HEADER_HEIGHT}px`,
           minHeight: `${HEADER_HEIGHT}px`,
@@ -151,7 +154,7 @@ export function HeroHeader({ children }: HeroHeaderProps) {
                   fontSize: "clamp(0.8rem, 1.6vw, 1.1rem)",
                   color: "#d4d4d4",
                   whiteSpace: "nowrap",
-                  maxWidth: "35vw",
+                  maxWidth: "28vw",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   animationName: "blurbFloat, blurbSequence",
@@ -248,54 +251,65 @@ export function HeroHeader({ children }: HeroHeaderProps) {
             alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
-            padding: "0 clamp(16px, 4vw, 24px)",
+            padding: "12px clamp(16px, 4vw, 24px)",
           }}
         >
           {/* Title group — pure transform centering avoids layout thrashing.
-              translateX(calc(factor * (50vw - 50% - 24px))) centers via compositor only:
-              50vw = half viewport, 50% = half self-width, 24px = left padding offset */}
+              translateX(calc(factor * (50vw - 50% - padding))) centers via compositor only:
+              50vw = half viewport, 50% = half self-width, padding = left padding offset */}
           <div
             style={{
               position: "relative",
               willChange: "transform",
-              transform: `translateX(calc(${(1 - t).toFixed(4)} * (50vw - 50% - 24px)))`,
+              transform: `translateX(calc(${(1 - t).toFixed(4)} * (50vw - 50% - clamp(16px, 4vw, 24px))))`,
             }}
           >
-            <h1
+            <div
               style={{
-                fontSize: "clamp(3rem, 12vw, 8rem)",
+                display: "flex",
+                alignItems: "center",
+                gap: "clamp(0.4rem, 1.5vw, 0.75rem)",
                 transform: `scale(${titleScale})`,
                 transformOrigin: "left center",
-                fontWeight: 800,
-                letterSpacing: "-0.05em",
-                lineHeight: 1,
-                margin: 0,
-                whiteSpace: "nowrap",
                 willChange: "transform",
               }}
             >
-              Deadliner
-            </h1>
+              <Logo className="shrink-0" size="clamp(2.4rem, 9.6vw, 6.4rem)" />
+              <div style={{ position: "relative" }}>
+                <h1
+                  style={{
+                    fontSize: "clamp(3rem, 12vw, 8rem)",
+                    fontWeight: 800,
+                    letterSpacing: "-0.05em",
+                    lineHeight: 1,
+                    margin: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Deadliner
+                </h1>
 
-            {/* Tagline — absolute so it doesn't push the title upward */}
-            <p
-              style={{
-                position: "absolute",
-                top: "100%",
-                left: 0,
-                opacity: taglineOpacity,
-                fontSize: "clamp(0.8rem, 2vw, 1.1rem)",
-                color: "var(--muted)",
-                margin: 0,
-                marginTop: "12px",
-                transformOrigin: "left top",
-                transform: `scale(${lerp(1, 0.6, t)})`,
-                pointerEvents: taglineOpacity < 0.1 ? "none" : "auto",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Syllabus to calendar in seconds.
-            </p>
+                {/* Tagline — absolute so it doesn't push the title upward */}
+                <p
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    opacity: taglineOpacity,
+                    fontSize: "clamp(0.8rem, 2vw, 1.1rem)",
+                    color: "var(--muted)",
+                    margin: 0,
+                    marginTop: "12px",
+                    transformOrigin: "left top",
+                    transform: `scale(${lerp(1, 0.6, t)})`,
+                    pointerEvents: taglineOpacity < 0.1 ? "none" : "auto",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Syllabus to calendar in seconds.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Step indicator slot */}

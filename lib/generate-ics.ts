@@ -8,8 +8,8 @@ export function generateICS(events: DeadlineEvent[]): Blob {
     if (event.time) {
       const [h, min] = event.time.split(":").map(Number);
       return {
-        title: event.title,
-        description: event.notes || undefined,
+        title: event.course ? `${event.course}: ${event.title}` : event.title,
+        description: [event.course, event.notes].filter(Boolean).join(" — ") || undefined,
         start: [y, m, d, h, min] as [number, number, number, number, number],
         duration: { hours: 1 },
       };

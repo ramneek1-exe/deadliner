@@ -27,6 +27,7 @@ function EditForm({
   const [time, setTime] = useState(event.time ?? "");
   const [type, setType] = useState<EventType>(event.type);
   const [weight, setWeight] = useState(event.weight);
+  const [course, setCourse] = useState(event.course);
 
   const handleSave = () => {
     onSave({
@@ -37,6 +38,7 @@ function EditForm({
       time: time || null,
       type,
       weight,
+      course,
     });
   };
 
@@ -124,6 +126,16 @@ function EditForm({
               type="text"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-foreground"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Course</label>
+            <input
+              type="text"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-foreground"
             />
           </div>

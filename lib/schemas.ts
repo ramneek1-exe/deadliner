@@ -74,10 +74,12 @@ export const aiEventSchema = z.object({
     }),
   weight: z.string().default(""),
   notes: z.string().default(""),
+  course: z.string().default(""),
 });
 
 export const aiResponseSchema = z.object({
   events: z.array(aiEventSchema),
+  courseName: z.string().default("Unknown Course"),
 });
 
 export type AIEvent = z.infer<typeof aiEventSchema>;

@@ -42,111 +42,113 @@ body {
   font-family: var(--font-geist-sans), "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
+@layer base {
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.4s ease-out both;
-}
+  .animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out both;
+  }
 
-/* Blurbs start hidden — animation overrides this when active */
-.blurb-hidden {
-  opacity: 0;
-}
-
-/* Floating blurb — gentle drift */
-@keyframes blurbFloat {
-  0%, 100% {
-    transform: translate(-50%, -50%);
-  }
-  25% {
-    transform: translate(calc(-50% + var(--dx1, 6px)), calc(-50% + var(--dy1, -8px)));
-  }
-  50% {
-    transform: translate(calc(-50% + var(--dx2, -4px)), calc(-50% + var(--dy2, 5px)));
-  }
-  75% {
-    transform: translate(calc(-50% + var(--dx3, 7px)), calc(-50% + var(--dy3, 3px)));
-  }
-}
-
-/* Sequential blurb — one at a time, using linear timing
-   8 blurbs × 5s each = 40s cycle. Each blurb = 12.5% of cycle.
-   Fade in: 0–3% (~1.2s), Hold: 3–8.5% (~2.2s), Fade out: 8.5–12.5% (~1.6s) */
-@keyframes blurbSequence {
-  0% { opacity: 0; }
-  3% { opacity: 0.7; }
-  8.5% { opacity: 0.7; }
-  12.5% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-/* Scroll indicator — dot moves down inside mouse outline */
-@keyframes scrollDot {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  50% {
-    transform: translateY(8px);
+  /* Blurbs start hidden — animation overrides this when active */
+  .blurb-hidden {
     opacity: 0;
   }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
+
+  /* Floating blurb — gentle drift */
+  @keyframes blurbFloat {
+    0%, 100% {
+      transform: translate(-50%, -50%);
+    }
+    25% {
+      transform: translate(calc(-50% + var(--dx1, 6px)), calc(-50% + var(--dy1, -8px)));
+    }
+    50% {
+      transform: translate(calc(-50% + var(--dx2, -4px)), calc(-50% + var(--dy2, 5px)));
+    }
+    75% {
+      transform: translate(calc(-50% + var(--dx3, 7px)), calc(-50% + var(--dy3, 3px)));
+    }
   }
-}
 
-.scroll-dot {
-  animation: scrollDot 2s ease-in-out infinite;
-}
-
-/* Drawer enter */
-@keyframes drawerBackdropIn {
-  from { opacity: 0; backdrop-filter: blur(0px); }
-  to { opacity: 1; backdrop-filter: blur(4px); }
-}
-
-@keyframes drawerSlideIn {
-  from { transform: translateX(100%); opacity: 0.5; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-/* Drawer exit */
-@keyframes drawerBackdropOut {
-  from { opacity: 1; backdrop-filter: blur(4px); }
-  to { opacity: 0; backdrop-filter: blur(0px); }
-}
-
-@keyframes drawerSlideOut {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0.5; }
-}
-
-/* Mobile bottom-sheet drawer animations */
-@keyframes drawerSlideInMobile {
-  from { transform: translateY(100%); opacity: 0.5; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes drawerSlideOutMobile {
-  from { transform: translateY(0); opacity: 1; }
-  to { transform: translateY(100%); opacity: 0.5; }
-}
-
-@media (max-width: 639px) {
-  .drawer-panel {
-    animation-name: drawerSlideInMobile !important;
+  /* Sequential blurb — one at a time, using linear timing
+     8 blurbs × 5s each = 40s cycle. Each blurb = 12.5% of cycle.
+     Fade in: 0–3% (~1.2s), Hold: 3–8.5% (~2.2s), Fade out: 8.5–12.5% (~1.6s) */
+  @keyframes blurbSequence {
+    0% { opacity: 0; }
+    3% { opacity: 0.7; }
+    8.5% { opacity: 0.7; }
+    12.5% { opacity: 0; }
+    100% { opacity: 0; }
   }
-  .drawer-panel-exit {
-    animation-name: drawerSlideOutMobile !important;
+
+  /* Scroll indicator — dot moves down inside mouse outline */
+  @keyframes scrollDot {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    50% {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .scroll-dot {
+    animation: scrollDot 2s ease-in-out infinite;
+  }
+
+  /* Drawer enter */
+  @keyframes drawerBackdropIn {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(4px); }
+  }
+
+  @keyframes drawerSlideIn {
+    from { transform: translateX(100%); opacity: 0.5; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Drawer exit */
+  @keyframes drawerBackdropOut {
+    from { opacity: 1; backdrop-filter: blur(4px); }
+    to { opacity: 0; backdrop-filter: blur(0px); }
+  }
+
+  @keyframes drawerSlideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0.5; }
+  }
+
+  /* Mobile bottom-sheet drawer animations */
+  @keyframes drawerSlideInMobile {
+    from { transform: translateY(100%); opacity: 0.5; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes drawerSlideOutMobile {
+    from { transform: translateY(0); opacity: 1; }
+    to { transform: translateY(100%); opacity: 0.5; }
+  }
+
+  @media (max-width: 639px) {
+    .drawer-panel {
+      animation-name: drawerSlideInMobile !important;
+    }
+    .drawer-panel-exit {
+      animation-name: drawerSlideOutMobile !important;
+    }
   }
 }

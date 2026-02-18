@@ -1,10 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PDFParse } from "pdf-parse";
 import OpenAI from "openai";
 import { aiResponseSchema } from "@/lib/schemas";
 import type { DeadlineEvent, ParseResponse, ParseErrorResponse } from "@/lib/types";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+// --- Rate Limiting (15 requests/min per IP, in-memory sliding window) ---
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 15;
+const rateLimitMap = new Map<string, number[]>();
+let requestCount = 0;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  requestCount++;
+
+  // Periodic cleanup of stale entries
+  if (requestCount % 100 === 0) {
+    for (const [key, timestamps] of rateLimitMap) {
+      const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+      if (recent.length === 0) rateLimitMap.delete(key);
+      else rateLimitMap.set(key, recent);
+    }
+  }
+
+  const timestamps = rateLimitMap.get(ip) ?? [];
+  const recent = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+
+  if (recent.length >= RATE_LIMIT_MAX) {
+    rateLimitMap.set(ip, recent);
+    return true;
+  }
+
+  recent.push(now);
+  rateLimitMap.set(ip, recent);
+  return false;
+}
+
+const MAX_DOC_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+
+const ACCEPTED_MIME_TYPES = new Set([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel",
+  "image/jpeg",
+  "image/png",
+  "image/heic",
+  "image/heif",
+]);
+
+const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/heic", "image/heif"]);
 
 const SYSTEM_PROMPT = `You are a syllabus parser. Extract all deadlines, due dates, exams, quizzes, assignments, readings, and other time-sensitive items from the provided syllabus text.
 
@@ -29,6 +74,7 @@ Notes: include any additional context like location, topics covered, or special 
 
 Respond with JSON only in this exact format:
 {
+  "courseName": "string — the course name/code extracted from the document (e.g., 'MATH 201', 'CS 350'). If not found, use 'Unknown Course'.",
   "events": [
     {
       "title": "string",
@@ -41,8 +87,56 @@ Respond with JSON only in this exact format:
   ]
 }`;
 
+async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
+  const { PDFParse } = await import("pdf-parse");
+  const pdf = new PDFParse({ data: new Uint8Array(buffer) });
+  const result = await pdf.getText();
+  return result.text.trim();
+}
+
+async function extractTextFromDOCX(buffer: ArrayBuffer): Promise<string> {
+  const mammoth = await import("mammoth");
+  const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) });
+  return result.value.trim();
+}
+
+async function extractTextFromXLSX(buffer: ArrayBuffer): Promise<string> {
+  const XLSX = await import("xlsx");
+  const workbook = XLSX.read(new Uint8Array(buffer), { type: "array" });
+  const parts: string[] = [];
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    parts.push(`--- ${sheetName} ---`);
+    parts.push(XLSX.utils.sheet_to_csv(sheet));
+  }
+  return parts.join("\n");
+}
+
+async function extractText(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  switch (file.type) {
+    case "application/pdf":
+      return extractTextFromPDF(buffer);
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      return extractTextFromDOCX(buffer);
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+    case "application/vnd.ms-excel":
+      return extractTextFromXLSX(buffer);
+    default:
+      throw new Error(`Unsupported file type: ${file.type}`);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (isRateLimited(ip)) {
+      return NextResponse.json<ParseErrorResponse>(
+        { error: "Too many requests. Please wait a moment." },
+        { status: 429 }
+      );
+    }
+
     let formData: FormData;
     try {
       formData = await request.formData();
@@ -52,69 +146,137 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const file = formData.get("file");
 
-    if (!file || !(file instanceof File)) {
-      return NextResponse.json<ParseErrorResponse>(
-        { error: "No file provided." },
-        { status: 400 }
-      );
-    }
-
-    if (file.type !== "application/pdf") {
-      return NextResponse.json<ParseErrorResponse>(
-        { error: "Only PDF files are accepted." },
-        { status: 400 }
-      );
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json<ParseErrorResponse>(
-        { error: "File too large. Maximum size is 5MB." },
-        { status: 400 }
-      );
-    }
-
-    const buffer = await file.arrayBuffer();
-
-    let text: string;
-    try {
-      const pdf = new PDFParse({ data: new Uint8Array(buffer) });
-      const result = await pdf.getText();
-      text = result.text.trim();
-    } catch {
-      return NextResponse.json<ParseErrorResponse>(
-        { error: "Could not extract text from this PDF. It may be image-based or corrupted." },
-        { status: 422 }
-      );
-    }
-
-    if (!text) {
-      return NextResponse.json<ParseErrorResponse>(
-        { error: "Could not extract text from this PDF. It may be image-based or empty." },
-        { status: 422 }
-      );
-    }
-
+    const inputType = (formData.get("type") as string) || "file";
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     let completion;
-    try {
-      completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: text },
-        ],
-      });
-    } catch {
-      return NextResponse.json<ParseErrorResponse>(
-        { error: "AI service is currently unavailable. Please try again later." },
-        { status: 502 }
-      );
+
+    if (inputType === "text") {
+      // --- Text input path ---
+      const text = formData.get("text") as string;
+      if (!text || !text.trim()) {
+        return NextResponse.json<ParseErrorResponse>(
+          { error: "No text provided." },
+          { status: 400 }
+        );
+      }
+
+      try {
+        completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: text.trim() },
+          ],
+        });
+      } catch {
+        return NextResponse.json<ParseErrorResponse>(
+          { error: "AI service is currently unavailable. Please try again later." },
+          { status: 502 }
+        );
+      }
+    } else {
+      // --- File input path ---
+      const file = formData.get("file");
+
+      if (!file || !(file instanceof File)) {
+        return NextResponse.json<ParseErrorResponse>(
+          { error: "No file provided." },
+          { status: 400 }
+        );
+      }
+
+      if (!ACCEPTED_MIME_TYPES.has(file.type)) {
+        return NextResponse.json<ParseErrorResponse>(
+          { error: "Unsupported file type. Accepted: PDF, DOCX, XLSX, JPEG, PNG, HEIC." },
+          { status: 400 }
+        );
+      }
+
+      const isImage = IMAGE_TYPES.has(file.type);
+      const maxSize = isImage ? MAX_IMAGE_SIZE : MAX_DOC_SIZE;
+      const maxLabel = isImage ? "10MB" : "5MB";
+
+      if (file.size > maxSize) {
+        return NextResponse.json<ParseErrorResponse>(
+          { error: `File too large. Maximum size is ${maxLabel}.` },
+          { status: 400 }
+        );
+      }
+
+      if (isImage) {
+        // --- Image vision path ---
+        const buffer = await file.arrayBuffer();
+        const base64 = Buffer.from(buffer).toString("base64");
+        const dataUrl = `data:${file.type};base64,${base64}`;
+
+        try {
+          completion = await openai.chat.completions.create({
+            model: "gpt-4o",
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Extract all deadlines, due dates, exams, quizzes, assignments, readings, and other time-sensitive items from this syllabus image.",
+                  },
+                  {
+                    type: "image_url",
+                    image_url: { url: dataUrl },
+                  },
+                ],
+              },
+            ],
+          });
+        } catch {
+          return NextResponse.json<ParseErrorResponse>(
+            { error: "AI service is currently unavailable. Please try again later." },
+            { status: 502 }
+          );
+        }
+      } else {
+        // --- Document text extraction path ---
+        let text: string;
+        try {
+          text = await extractText(file);
+        } catch {
+          return NextResponse.json<ParseErrorResponse>(
+            { error: "Could not extract text from this file. It may be corrupted or empty." },
+            { status: 422 }
+          );
+        }
+
+        if (!text) {
+          return NextResponse.json<ParseErrorResponse>(
+            { error: "Could not extract text from this file. It may be image-based or empty." },
+            { status: 422 }
+          );
+        }
+
+        try {
+          completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: SYSTEM_PROMPT },
+              { role: "user", content: text },
+            ],
+          });
+        } catch {
+          return NextResponse.json<ParseErrorResponse>(
+            { error: "AI service is currently unavailable. Please try again later." },
+            { status: 502 }
+          );
+        }
+      }
     }
 
+    // --- Shared response parsing ---
     const raw = completion.choices[0]?.message?.content;
     if (!raw) {
       return NextResponse.json<ParseErrorResponse>(
@@ -147,11 +309,16 @@ export async function POST(request: NextRequest) {
 
       // Parse events individually, keeping valid ones
       const { aiEventSchema } = await import("@/lib/schemas");
+      const courseName = typeof parsed?.courseName === "string" ? parsed.courseName : "Unknown Course";
       const salvaged: DeadlineEvent[] = [];
       for (const raw of rawEvents) {
         const result = aiEventSchema.safeParse(raw);
         if (result.success) {
-          salvaged.push({ ...result.data, id: crypto.randomUUID() });
+          salvaged.push({
+            ...result.data,
+            id: crypto.randomUUID(),
+            course: result.data.course || courseName,
+          });
         }
       }
 
@@ -163,15 +330,17 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      return NextResponse.json<ParseResponse>({ events: salvaged });
+      return NextResponse.json<ParseResponse>({ events: salvaged, courseName });
     }
 
+    const courseName = validated.data.courseName;
     const events: DeadlineEvent[] = validated.data.events.map((e) => ({
       ...e,
       id: crypto.randomUUID(),
+      course: e.course || courseName,
     }));
 
-    return NextResponse.json<ParseResponse>({ events });
+    return NextResponse.json<ParseResponse>({ events, courseName });
   } catch {
     return NextResponse.json<ParseErrorResponse>(
       { error: "An unexpected error occurred. Please try again." },

@@ -6,12 +6,12 @@ const FAQ_ITEMS: { question: string; answer: string }[] = [
   {
     question: "What file types are supported?",
     answer:
-      "Currently, Deadliner supports PDF files up to 5 MB. Just drag and drop your syllabus or course outline and we'll handle the rest.",
+      "Deadliner supports PDF, DOCX, XLSX, and images (JPG, PNG, HEIC). You can also paste syllabus text directly. Upload up to 10 files at once - perfect for loading all your courses in one go.",
   },
   {
     question: "How does it work?",
     answer:
-      "Upload your syllabus PDF, and our AI reads through it to find deadlines, exams, and assignments. You get a clean list to review, edit, or remove items — then export everything as a .ics calendar file.",
+      "Drop your course outlines (or paste text), and the AI reads through each one to find deadlines, exams, and assignments. It automatically detects the course name and groups everything together. Then, you can review, edit, or remove items. Finally, export all your deadlines as a single .ics calendar file.",
   },
   {
     question: "Which calendar apps can I use?",

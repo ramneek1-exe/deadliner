@@ -3,6 +3,7 @@
 import type { WizardStep } from "@/lib/types";
 import { HeroHeader } from "@/components/HeroHeader";
 import { StepIndicator } from "@/components/StepIndicator";
+import { Logo } from "@/components/Logo";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -27,7 +28,8 @@ export function AppShell({ children, step }: AppShellProps) {
           }}
         >
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-extrabold tracking-tighter text-foreground">
+            <h1 className="flex items-center gap-1.5 text-xl font-extrabold tracking-tighter text-foreground">
+              <Logo size={20} />
               Deadliner
             </h1>
             <StepIndicator currentStep={step} compact />

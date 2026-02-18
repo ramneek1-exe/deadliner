@@ -1,3 +1,4 @@
+import { Check } from "geist-icons";
 import type { WizardStep } from "@/lib/types";
 
 interface StepIndicatorProps {
@@ -43,18 +44,7 @@ export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
                   }`}
                 >
                   {isCompleted ? (
-                    <svg
-                      width="11"
-                      height="11"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="2,6 5,9 10,3" />
-                    </svg>
+                    <Check size={11} />
                   ) : (
                     i + 1
                   )}
@@ -98,18 +88,7 @@ export function StepIndicator({ currentStep, compact }: StepIndicatorProps) {
                 }`}
               >
                 {isCompleted ? (
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="2,6 5,9 10,3" />
-                  </svg>
+                  <Check size={12} />
                 ) : (
                   i + 1
                 )}
