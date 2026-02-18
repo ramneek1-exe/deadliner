@@ -88,8 +88,19 @@ Respond with JSON only in this exact format:
 }`;
 
 async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
+  // Pre-register the worker on globalThis so pdfjs-dist uses it inline
+  // instead of trying a dynamic import("./pdf.worker.mjs") which fails in Next.js
+  const pdfjsWorker = await import("pdfjs-dist/legacy/build/pdf.worker.mjs");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).pdfjsWorker = pdfjsWorker;
+
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(buffer) });
+  const loadingTask = pdfjs.getDocument({
+    data: new Uint8Array(buffer),
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: false,
+  });
   const doc = await loadingTask.promise;
   const parts: string[] = [];
   for (let i = 1; i <= doc.numPages; i++) {
@@ -259,7 +270,8 @@ export async function POST(request: NextRequest) {
         let text: string;
         try {
           text = await extractText(file);
-        } catch {
+        } catch (err) {
+          console.error("Text extraction failed:", err);
           return NextResponse.json<ParseErrorResponse>(
             { error: "Could not extract text from this file. It may be corrupted or empty." },
             { status: 422 }

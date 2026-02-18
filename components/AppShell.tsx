@@ -43,7 +43,7 @@ export function AppShell({ children, step }: AppShellProps) {
           Made with{" "}
           <span
             style={{ fontFamily: "var(--font-geist-pixel-square), monospace" }}
-            className="text-foreground"
+            className="text-red-500"
           >
             ♥
           </span>
