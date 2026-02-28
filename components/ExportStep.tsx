@@ -34,10 +34,6 @@ function GoogleCalendarLogo({ className }: { className?: string }) {
   return <img src="/google-calendar.svg" alt="" className={className} />;
 }
 
-function OutlookLogo({ className }: { className?: string }) {
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src="/outlook-logo.svg" alt="" className={className} />;
-}
 
 function formatEventsAsText(events: DeadlineEvent[]): string {
   const groups = new Map<string, DeadlineEvent[]>();
@@ -142,25 +138,6 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
           </a>
         )}
 
-        {/* Outlook button — mobile only, uses Web Share API so user can pick Outlook */}
-        {platform !== "desktop" && (
-          <button
-            onClick={async () => {
-              const blob = generateICS(events);
-              const file = new File([blob], "deadlines-all-courses.ics", { type: "text/calendar" });
-              if (navigator.canShare?.({ files: [file] })) {
-                await navigator.share({ files: [file], title: "Deadlines Calendar" });
-              } else {
-                // Fallback: trigger download
-                handleDownload(new MouseEvent("click") as unknown as React.MouseEvent);
-              }
-            }}
-            className={secondaryClasses}
-          >
-            <OutlookLogo className="h-3.5 w-3.5" />
-            Add to Outlook
-          </button>
-        )}
 
         {/* Secondary download option for mobile users */}
         {platform !== "desktop" && (
@@ -186,7 +163,7 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
       <p className="mt-6 max-w-xs text-center text-xs text-muted">
         {platform === "desktop"
           ? "Tip: Double-click or drag-and-drop the downloaded file to import into any calendar app, including Outlook."
-          : "Tip: Tap a button above and your calendar app will ask to add the events."}
+          : "Tip: Tap a button above to add events. For other apps like Outlook, download the .ics file and open it from your Files app."}
       </p>
 
       <button
