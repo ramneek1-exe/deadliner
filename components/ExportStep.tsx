@@ -142,12 +142,24 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
           </a>
         )}
 
-        {/* Outlook button — mobile only, uses OS app picker to open Outlook if installed */}
+        {/* Outlook button — mobile only, uses Web Share API so user can pick Outlook */}
         {platform !== "desktop" && (
-          <a href={blobUrl} className={secondaryClasses}>
+          <button
+            onClick={async () => {
+              const blob = generateICS(events);
+              const file = new File([blob], "deadlines-all-courses.ics", { type: "text/calendar" });
+              if (navigator.canShare?.({ files: [file] })) {
+                await navigator.share({ files: [file], title: "Deadlines Calendar" });
+              } else {
+                // Fallback: trigger download
+                handleDownload(new MouseEvent("click") as unknown as React.MouseEvent);
+              }
+            }}
+            className={secondaryClasses}
+          >
             <OutlookLogo className="h-3.5 w-3.5" />
             Add to Outlook
-          </a>
+          </button>
         )}
 
         {/* Secondary download option for mobile users */}
