@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Download } from "lucide-react";
-import { CheckCircleFill } from "geist-icons";
+import { CheckCircleFill, Copy } from "geist-icons";
 import { generateICS } from "@/lib/generate-ics";
 import type { DeadlineEvent } from "@/lib/types";
 
@@ -34,15 +34,66 @@ function GoogleCalendarLogo({ className }: { className?: string }) {
   return <img src="/google-calendar.svg" alt="" className={className} />;
 }
 
+function OutlookLogo({ className }: { className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/outlook-logo.svg" alt="" className={className} />;
+}
+
+function formatEventsAsText(events: DeadlineEvent[]): string {
+  const groups = new Map<string, DeadlineEvent[]>();
+  for (const event of events) {
+    const course = event.course || "Uncategorized";
+    if (!groups.has(course)) groups.set(course, []);
+    groups.get(course)!.push(event);
+  }
+  const lines: string[] = [];
+  for (const [course, courseEvents] of groups) {
+    lines.push(course);
+    for (const e of courseEvents) {
+      const [y, m, d] = e.date.split("-").map(Number);
+      const dateStr = new Date(y, m - 1, d).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+      const timeStr = e.time ? ` at ${e.time}` : "";
+      lines.push(`  - ${e.title} — ${dateStr}${timeStr}`);
+    }
+    lines.push("");
+  }
+  return lines.join("\n").trim();
+}
+
 export function ExportStep({ events, onReset }: ExportStepProps) {
   const courseCount = new Set(events.map((e) => e.course).filter(Boolean)).size;
   const [platform, setPlatform] = useState<Platform>("desktop");
+  const [copied, setCopied] = useState(false);
+
+  function handleDownload(e: React.MouseEvent) {
+    e.preventDefault();
+    const blob = generateICS(events);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "deadlines-all-courses.ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+  }
+
+  async function handleCopyText() {
+    await navigator.clipboard.writeText(formatEventsAsText(events));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   useEffect(() => {
     setPlatform(detectPlatform());
   }, []);
 
-  // Pre-generate the blob URL so real <a> tags can be used (critical for mobile)
+  // Pre-generate blob URL — used by mobile <a> tags and programmatic downloads
   const blobUrl = useMemo(() => {
     const blob = generateICS(events);
     return URL.createObjectURL(blob);
@@ -84,24 +135,47 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
             Add to Google Calendar
           </a>
         ) : (
-          <a href={blobUrl} download="deadlines-all-courses.ics" className={linkClasses}>
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
+          <a href="#" onClick={handleDownload} className={linkClasses}>
             <Download className="h-4 w-4" />
             Download .ics
           </a>
         )}
 
+        {/* Outlook button — mobile only, uses OS app picker to open Outlook if installed */}
+        {platform !== "desktop" && (
+          <a href={blobUrl} className={secondaryClasses}>
+            <OutlookLogo className="h-3.5 w-3.5" />
+            Add to Outlook
+          </a>
+        )}
+
         {/* Secondary download option for mobile users */}
         {platform !== "desktop" && (
-          <a
-            href={blobUrl}
-            download="deadlines-all-courses.ics"
-            className={secondaryClasses}
-          >
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
+          <a href="#" onClick={handleDownload} className={secondaryClasses}>
             <Download className="h-3.5 w-3.5" />
             Download .ics file instead
           </a>
         )}
+
+        {/* Copy as text */}
+        <button onClick={handleCopyText} className={secondaryClasses}>
+          {copied ? (
+            <CheckCircleFill className="h-3.5 w-3.5" />
+          ) : (
+            <Copy className="h-3.5 w-3.5" />
+          )}
+          {copied ? "Copied!" : "Copy as text"}
+        </button>
       </div>
+
+      {/* Usage tip */}
+      <p className="mt-6 max-w-xs text-center text-xs text-muted">
+        {platform === "desktop"
+          ? "Tip: Double-click or drag-and-drop the downloaded file to import into any calendar app, including Outlook."
+          : "Tip: Tap a button above and your calendar app will ask to add the events."}
+      </p>
 
       <button
         onClick={onReset}
