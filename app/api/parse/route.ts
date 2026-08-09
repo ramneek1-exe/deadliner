@@ -249,8 +249,15 @@ export async function POST(request: NextRequest) {
 
         try {
           completion = await openai.chat.completions.create({
-            model: "gpt-4o",
-            response_format: { type: "json_object" },
+            model: "gpt-5.6-terra",
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "deadline_extraction",
+                strict: true,
+                schema: RESPONSE_JSON_SCHEMA,
+              },
+            },
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               {
