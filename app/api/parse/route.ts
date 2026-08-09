@@ -55,7 +55,7 @@ const SYSTEM_PROMPT = `You are a syllabus parser. Extract all deadlines, due dat
 
 Rules:
 - Only extract deadlines and due dates. Do NOT extract office hours, class policies, instructor info, or general course descriptions.
-- For each deadline, extract: title, date, time (if specified), type, weight (if mentioned), and any relevant notes or details.
+- For each deadline, extract: title, date, time (if specified), type, weight (if mentioned), location (if mentioned), and any relevant notes or details.
 
 Date handling:
 - Output date format: YYYY-MM-DD. You MUST always output dates in this format.

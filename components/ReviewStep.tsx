@@ -279,7 +279,7 @@ export function ReviewStep({
                                 {event.location && (
                                   <div className="mt-0.5 flex items-center gap-1 text-xs font-normal text-muted">
                                     <MapPin className="h-3 w-3 shrink-0" />
-                                    <span className="truncate">{event.location}</span>
+                                    <span>{event.location}</span>
                                   </div>
                                 )}
                               </td>
@@ -390,7 +390,7 @@ export function ReviewStep({
                               {event.location && (
                                 <div className="mt-0.5 flex items-center gap-1 text-xs text-muted">
                                   <MapPin className="h-3 w-3 shrink-0" />
-                                  <span className="truncate">{event.location}</span>
+                                  <span>{event.location}</span>
                                 </div>
                               )}
                               <div className="mt-1 flex flex-wrap items-center gap-x-1 text-sm text-muted">
