@@ -87,6 +87,34 @@ Respond with JSON only in this exact format:
   ]
 }`;
 
+const RESPONSE_JSON_SCHEMA = {
+  type: "object",
+  properties: {
+    courseName: { type: "string" },
+    events: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          date: { type: "string" },
+          time: { type: ["string", "null"] },
+          type: {
+            type: "string",
+            enum: ["Exam", "Assignment", "Reading", "Other"],
+          },
+          weight: { type: "string" },
+          notes: { type: "string" },
+        },
+        required: ["title", "date", "time", "type", "weight", "notes"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["courseName", "events"],
+  additionalProperties: false,
+} as const;
+
 async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
   const { getDocumentProxy, extractText } = await import("unpdf");
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
@@ -164,8 +192,15 @@ export async function POST(request: NextRequest) {
 
       try {
         completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          response_format: { type: "json_object" },
+          model: "gpt-5.6-luna",
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "deadline_extraction",
+              strict: true,
+              schema: RESPONSE_JSON_SCHEMA,
+            },
+          },
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: text.trim() },
@@ -261,8 +296,15 @@ export async function POST(request: NextRequest) {
 
         try {
           completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            response_format: { type: "json_object" },
+            model: "gpt-5.6-luna",
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "deadline_extraction",
+                strict: true,
+                schema: RESPONSE_JSON_SCHEMA,
+              },
+            },
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: text },
