@@ -12,7 +12,7 @@
 - **Language:** TypeScript (Strict mode)
 - **Styling:** Tailwind CSS
 - **Icons:** Lucide React
-- **AI Provider:** OpenAI API (Model: `gpt-4o-mini`)
+- **AI Provider:** OpenAI API (Model: `gpt-5.6-luna` text, `gpt-5.6-terra` vision)
 - **Key Libraries:**
   - `pdf-parse`: For server-side text extraction from PDFs.
   - `ics`: For generating the calendar file blob.

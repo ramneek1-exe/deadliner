@@ -12,7 +12,7 @@ A Next.js app that converts course syllabi (PDF, DOCX, XLSX, images, pasted text
 
 - **Framework:** Next.js 16 (App Router), React 19
 - **Styling:** Tailwind CSS v4
-- **AI:** OpenAI GPT-4o-mini (text), GPT-4o (images) via `openai` SDK
+- **AI:** OpenAI `gpt-5.6-luna` (text), `gpt-5.6-terra` (images) via `openai` SDK
 - **Parsing:** `pdf-parse`, `mammoth` (DOCX), `xlsx` (spreadsheets)
 - **Validation:** `zod` schemas for AI responses
 - **Fonts:** `geist` package — sans, mono, and pixel variants loaded in `app/layout.tsx`

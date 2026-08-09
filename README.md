@@ -9,7 +9,7 @@ Deadliner is a web app that reads your syllabus files — PDF, DOCX, XLSX, image
 ## Features
 
 - **Multi-format ingestion** — PDF, DOCX, XLSX, JPEG, PNG, HEIC, and pasted text
-- **AI extraction** — GPT-4o-mini for documents/text; GPT-4o vision for images
+- **AI extraction** — `gpt-5.6-luna` for documents/text; `gpt-5.6-terra` vision for images
 - **Multi-file support** — up to 10 files processed in parallel (max 3 concurrent)
 - **Review & edit** — inspect, rename, delete, or edit individual events before exporting
 - **Course grouping** — events are grouped by course; multiple files can share a course name
@@ -87,9 +87,9 @@ Users drop files or paste syllabus text. Each file is processed independently an
 Each file hits `POST /api/parse`:
 
 1. **Text extraction** — PDF via `unpdf`, DOCX via `mammoth`, XLSX via `xlsx`
-2. **Images** — sent directly to GPT-4o as base64 data URLs (vision)
-3. **AI extraction** — GPT-4o-mini (text) or GPT-4o (images) with a structured JSON prompt
-4. **Validation** — Zod schemas normalize dates, times, and event types; malformed events are salvaged individually rather than failing the whole response
+2. **Images** — sent directly to `gpt-5.6-terra` as base64 data URLs (vision)
+3. **AI extraction** — `gpt-5.6-luna` (text) or `gpt-5.6-terra` (images), with output constrained to a strict JSON schema
+4. **Validation** — Zod schemas normalize dates, times, and event types; a malformed response fails the request cleanly so no deadline is silently dropped
 
 ### 3. Review
 
@@ -245,7 +245,7 @@ interface FileQueueItem {
 |---|---|
 | Framework | Next.js 16 (App Router), React 19 |
 | Styling | Tailwind CSS v4 |
-| AI | OpenAI GPT-4o-mini (text), GPT-4o (images) |
+| AI | OpenAI `gpt-5.6-luna` (text), `gpt-5.6-terra` (images) |
 | PDF parsing | `unpdf` |
 | DOCX parsing | `mammoth` |
 | XLSX parsing | `xlsx` |

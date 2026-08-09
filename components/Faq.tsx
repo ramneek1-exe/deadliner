@@ -21,7 +21,7 @@ const FAQ_ITEMS: { question: string; answer: string }[] = [
   {
     question: "How accurate is the extraction?",
     answer:
-      "It's powered by GPT-4o and handles most syllabus formats well. The review step lets you verify every event before exporting, so you're always in control.",
+      "It's powered by GPT-5.6 and handles most syllabus formats well. The review step lets you verify every event before exporting, so you're always in control.",
   },
   {
     question: "Is my data stored anywhere?",
