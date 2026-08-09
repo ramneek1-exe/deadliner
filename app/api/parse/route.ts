@@ -97,7 +97,7 @@ const RESPONSE_JSON_SCHEMA = {
         type: "object",
         properties: {
           title: { type: "string" },
-          date: { type: "string" },
+          date: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
           time: { type: ["string", "null"] },
           type: {
             type: "string",
