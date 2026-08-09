@@ -23,6 +23,11 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function formatDateDisplay(dateStr: string, endDateStr: string | null): string {
+  if (!endDateStr) return formatDate(dateStr);
+  return `${formatDate(dateStr)} – ${formatDate(endDateStr)}`;
+}
+
 function formatTime(time: string | null): string {
   if (!time) return "All day";
   const [h, m] = time.split(":").map(Number);
@@ -310,7 +315,7 @@ export function ReviewStep({
                                     }
                                     className="hover:underline underline-offset-4 decoration-border hover:decoration-foreground transition-colors"
                                   >
-                                    {formatDate(event.date)}
+                                    {formatDateDisplay(event.date, event.endDate)}
                                   </button>
                                 )}
                               </td>
@@ -420,7 +425,7 @@ export function ReviewStep({
                                     }
                                     className="hover:underline underline-offset-4"
                                   >
-                                    {formatDate(event.date)}
+                                    {formatDateDisplay(event.date, event.endDate)}
                                   </button>
                                 )}
                                 <span>&middot;</span>
