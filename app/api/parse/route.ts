@@ -87,6 +87,34 @@ Respond with JSON only in this exact format:
   ]
 }`;
 
+const RESPONSE_JSON_SCHEMA = {
+  type: "object",
+  properties: {
+    courseName: { type: "string" },
+    events: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          date: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+          time: { type: ["string", "null"] },
+          type: {
+            type: "string",
+            enum: ["Exam", "Assignment", "Reading", "Other"],
+          },
+          weight: { type: "string" },
+          notes: { type: "string" },
+        },
+        required: ["title", "date", "time", "type", "weight", "notes"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["courseName", "events"],
+  additionalProperties: false,
+} as const;
+
 async function extractTextFromPDF(buffer: ArrayBuffer): Promise<string> {
   const { getDocumentProxy, extractText } = await import("unpdf");
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
@@ -164,8 +192,15 @@ export async function POST(request: NextRequest) {
 
       try {
         completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          response_format: { type: "json_object" },
+          model: "gpt-5.6-luna",
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "deadline_extraction",
+              strict: true,
+              schema: RESPONSE_JSON_SCHEMA,
+            },
+          },
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: text.trim() },
@@ -214,8 +249,15 @@ export async function POST(request: NextRequest) {
 
         try {
           completion = await openai.chat.completions.create({
-            model: "gpt-4o",
-            response_format: { type: "json_object" },
+            model: "gpt-5.6-terra",
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "deadline_extraction",
+                strict: true,
+                schema: RESPONSE_JSON_SCHEMA,
+              },
+            },
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               {
@@ -261,8 +303,15 @@ export async function POST(request: NextRequest) {
 
         try {
           completion = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            response_format: { type: "json_object" },
+            model: "gpt-5.6-luna",
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "deadline_extraction",
+                strict: true,
+                schema: RESPONSE_JSON_SCHEMA,
+              },
+            },
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: text },
@@ -298,40 +347,11 @@ export async function POST(request: NextRequest) {
 
     const validated = aiResponseSchema.safeParse(parsed);
     if (!validated.success) {
-      // Try to salvage individual events if the top-level parse fails
-      const rawEvents = Array.isArray(parsed?.events) ? parsed.events : [];
-      if (rawEvents.length === 0) {
-        console.error("AI validation failed:", validated.error.issues);
-        return NextResponse.json<ParseErrorResponse>(
-          { error: "AI returned unexpected data format. Please try again." },
-          { status: 502 }
-        );
-      }
-
-      // Parse events individually, keeping valid ones
-      const { aiEventSchema } = await import("@/lib/schemas");
-      const courseName = typeof parsed?.courseName === "string" ? parsed.courseName : "Unknown Course";
-      const salvaged: DeadlineEvent[] = [];
-      for (const raw of rawEvents) {
-        const result = aiEventSchema.safeParse(raw);
-        if (result.success) {
-          salvaged.push({
-            ...result.data,
-            id: crypto.randomUUID(),
-            course: result.data.course || courseName,
-          });
-        }
-      }
-
-      if (salvaged.length === 0) {
-        console.error("AI validation failed for all events:", validated.error.issues);
-        return NextResponse.json<ParseErrorResponse>(
-          { error: "AI returned unexpected data format. Please try again." },
-          { status: 502 }
-        );
-      }
-
-      return NextResponse.json<ParseResponse>({ events: salvaged, courseName });
+      console.error("AI validation failed:", validated.error.issues);
+      return NextResponse.json<ParseErrorResponse>(
+        { error: "AI returned unexpected data format. Please try again." },
+        { status: 502 }
+      );
     }
 
     const courseName = validated.data.courseName;
