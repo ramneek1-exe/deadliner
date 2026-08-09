@@ -18,6 +18,7 @@ export function generateICS(events: DeadlineEvent[]): Blob {
         return {
           title: event.course ? `${event.course}: ${event.title}` : event.title,
           description: [event.course, event.notes].filter(Boolean).join(" — ") || undefined,
+          location: event.location || undefined,
           start: [y, m, d, h, min] as [number, number, number, number, number],
           duration: { hours: 1 },
         };
@@ -26,6 +27,7 @@ export function generateICS(events: DeadlineEvent[]): Blob {
       return {
         title: event.title,
         description: event.notes || undefined,
+        location: event.location || undefined,
         start: [y, m, d] as [number, number, number],
         duration: { days: 1 },
       };

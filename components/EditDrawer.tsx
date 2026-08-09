@@ -28,6 +28,7 @@ function EditForm({
   const [type, setType] = useState<EventType>(event.type);
   const [weight, setWeight] = useState(event.weight);
   const [course, setCourse] = useState(event.course);
+  const [location, setLocation] = useState(event.location);
 
   const handleSave = () => {
     onSave({
@@ -39,6 +40,7 @@ function EditForm({
       type,
       weight,
       course,
+      location,
     });
   };
 
@@ -136,6 +138,20 @@ function EditForm({
               type="text"
               value={course}
               onChange={(e) => setCourse(e.target.value)}
+              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-foreground"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">
+              Location
+              <span className="ml-1 font-normal text-muted">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. Room 204, Testing Centre, Moodle"
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-foreground"
             />
           </div>

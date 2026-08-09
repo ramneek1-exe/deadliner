@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import { Pencil, Trash2, ChevronDown, ChevronRight, MapPin } from "lucide-react";
 import { EditDrawer } from "@/components/EditDrawer";
 import type { DeadlineEvent } from "@/lib/types";
 
@@ -276,6 +276,12 @@ export function ReviewStep({
                             >
                               <td className="px-4 py-2.5 font-medium">
                                 {event.title}
+                                {event.location && (
+                                  <div className="mt-0.5 flex items-center gap-1 text-xs font-normal text-muted">
+                                    <MapPin className="h-3 w-3 shrink-0" />
+                                    <span>{event.location}</span>
+                                  </div>
+                                )}
                               </td>
                               <td className="px-4 py-2.5 text-muted">
                                 {editingField?.id === event.id &&
@@ -381,6 +387,12 @@ export function ReviewStep({
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <p className="font-medium">{event.title}</p>
+                              {event.location && (
+                                <div className="mt-0.5 flex items-center gap-1 text-xs text-muted">
+                                  <MapPin className="h-3 w-3 shrink-0" />
+                                  <span>{event.location}</span>
+                                </div>
+                              )}
                               <div className="mt-1 flex flex-wrap items-center gap-x-1 text-sm text-muted">
                                 {editingField?.id === event.id &&
                                   editingField.field === "date" ? (

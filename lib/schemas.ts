@@ -75,6 +75,7 @@ export const aiEventSchema = z.object({
   weight: z.string().default(""),
   notes: z.string().default(""),
   course: z.string().default(""),
+  location: z.string().default(""),
 });
 
 export const aiResponseSchema = z.object({

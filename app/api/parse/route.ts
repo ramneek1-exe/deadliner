@@ -55,7 +55,7 @@ const SYSTEM_PROMPT = `You are a syllabus parser. Extract all deadlines, due dat
 
 Rules:
 - Only extract deadlines and due dates. Do NOT extract office hours, class policies, instructor info, or general course descriptions.
-- For each deadline, extract: title, date, time (if specified), type, weight (if mentioned), and any relevant notes or details.
+- For each deadline, extract: title, date, time (if specified), type, weight (if mentioned), location (if mentioned), and any relevant notes or details.
 
 Date handling:
 - Output date format: YYYY-MM-DD. You MUST always output dates in this format.
@@ -70,7 +70,8 @@ Time handling:
 
 Type: must be one of "Exam", "Assignment", "Reading", "Other".
 Weight: include if mentioned (e.g., "30%"), otherwise use empty string.
-Notes: include any additional context like location, topics covered, or special instructions.
+Notes: include any additional context like topics covered or special instructions.
+Location: include the room/building, testing centre, or online platform (e.g. "Moodle") if mentioned, otherwise use empty string. Applies to any event type, not just exams.
 
 Respond with JSON only in this exact format:
 {
@@ -82,7 +83,8 @@ Respond with JSON only in this exact format:
       "time": "HH:mm" | null,
       "type": "Exam" | "Assignment" | "Reading" | "Other",
       "weight": "string",
-      "notes": "string"
+      "notes": "string",
+      "location": "string"
     }
   ]
 }`;
@@ -105,8 +107,9 @@ const RESPONSE_JSON_SCHEMA = {
           },
           weight: { type: "string" },
           notes: { type: "string" },
+          location: { type: "string" },
         },
-        required: ["title", "date", "time", "type", "weight", "notes"],
+        required: ["title", "date", "time", "type", "weight", "notes", "location"],
         additionalProperties: false,
       },
     },

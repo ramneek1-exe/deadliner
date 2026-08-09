@@ -183,7 +183,8 @@ Extracts deadline events from a file or pasted text.
       "type": "Exam",
       "weight": "25%",
       "notes": "Chapters 1–5, closed book",
-      "course": "CS 350"
+      "course": "CS 350",
+      "location": "Room 204"
     }
   ]
 }
@@ -217,6 +218,7 @@ interface DeadlineEvent {
   weight: string;   // Grade weight if mentioned (e.g. "20%"), otherwise ""
   notes: string;    // Additional context from the syllabus
   course: string;   // Course name (e.g. "CS 350")
+  location: string; // Room/building, testing centre, or online platform; "" if none mentioned
 }
 ```
 
