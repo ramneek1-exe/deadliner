@@ -58,6 +58,10 @@ function normalizeTime(val: string): string {
 export const aiEventSchema = z.object({
   title: z.string().min(1),
   date: z.string().min(1).transform(normalizeDate),
+  endDate: z
+    .union([z.string().transform(normalizeDate), z.null()])
+    .optional()
+    .default(null),
   time: z
     .union([z.string().transform(normalizeTime), z.null()])
     .optional()

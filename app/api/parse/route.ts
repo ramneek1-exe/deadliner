@@ -55,7 +55,7 @@ const SYSTEM_PROMPT = `You are a syllabus parser. Extract all deadlines, due dat
 
 Rules:
 - Only extract deadlines and due dates. Do NOT extract office hours, class policies, instructor info, or general course descriptions.
-- For each deadline, extract: title, date, time (if specified), type, weight (if mentioned), location (if mentioned), and any relevant notes or details.
+- For each deadline, extract: title, date, end date (if it's a multi-day window), time (if specified), type, weight (if mentioned), location (if mentioned), and any relevant notes or details.
 
 Date handling:
 - Output date format: YYYY-MM-DD. You MUST always output dates in this format.
@@ -63,10 +63,16 @@ Date handling:
 - If no year is specified, default to the current year (2026). For academic terms spanning two years, infer the correct year from context (e.g., a Winter 2026 term starting in January 2026).
 - If only a day of the week is given with no date, skip that item.
 
+Date range handling:
+- Some deadlines are open across a range of days rather than due on a single date — e.g. "Final Exam: available March 30 - April 3" (testing centre), "Quiz 3: any time during the window April 8-10" (open-book), or a multi-day assignment drop period.
+- When you detect a range, set "date" to the range's start and "endDate" to the range's end, both in YYYY-MM-DD format.
+- For a normal single-date deadline (the common case), set "endDate" to null.
+
 Time handling:
 - Output time format: HH:mm (24-hour). Convert AM/PM to 24-hour (e.g., "2:00 PM" → "14:00", "11:59pm" → "23:59").
 - Pay attention to contextual time info that applies broadly. For example, if the syllabus says "all assignments are due by 11:59pm on the due date", then apply "23:59" as the time for every assignment deadline.
 - If no specific time is mentioned or implied for an item, set time to null.
+- For a ranged item (endDate is not null), set time to null regardless of any specific open/close hours mentioned — ranged items are always treated as all-day.
 
 Type: must be one of "Exam", "Assignment", "Reading", "Other".
 Weight: include if mentioned (e.g., "30%"), otherwise use empty string.
@@ -80,6 +86,7 @@ Respond with JSON only in this exact format:
     {
       "title": "string",
       "date": "YYYY-MM-DD",
+      "endDate": "YYYY-MM-DD" | null,
       "time": "HH:mm" | null,
       "type": "Exam" | "Assignment" | "Reading" | "Other",
       "weight": "string",
@@ -100,6 +107,7 @@ const RESPONSE_JSON_SCHEMA = {
         properties: {
           title: { type: "string" },
           date: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+          endDate: { type: ["string", "null"], pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
           time: { type: ["string", "null"] },
           type: {
             type: "string",
@@ -109,7 +117,7 @@ const RESPONSE_JSON_SCHEMA = {
           notes: { type: "string" },
           location: { type: "string" },
         },
-        required: ["title", "date", "time", "type", "weight", "notes", "location"],
+        required: ["title", "date", "endDate", "time", "type", "weight", "notes", "location"],
         additionalProperties: false,
       },
     },

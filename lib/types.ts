@@ -6,6 +6,7 @@ export interface DeadlineEvent {
   id: string;
   title: string;
   date: string; // YYYY-MM-DD
+  endDate: string | null; // YYYY-MM-DD, or null for a single-day event; when set, the event spans date..endDate inclusive
   time: string | null; // HH:mm or null for all-day
   type: EventType;
   weight: string;
