@@ -11,6 +11,7 @@ export interface DeadlineEvent {
   weight: string;
   notes: string;
   course: string;
+  location: string;
 }
 
 export interface ParseResponse {
