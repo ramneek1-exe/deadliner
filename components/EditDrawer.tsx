@@ -24,6 +24,7 @@ function EditForm({
   const [title, setTitle] = useState(event.title);
   const [notes, setNotes] = useState(event.notes);
   const [date, setDate] = useState(event.date);
+  const [endDate, setEndDate] = useState(event.endDate ?? "");
   const [time, setTime] = useState(event.time ?? "");
   const [type, setType] = useState<EventType>(event.type);
   const [weight, setWeight] = useState(event.weight);
@@ -36,6 +37,7 @@ function EditForm({
       title,
       notes,
       date,
+      endDate: endDate || null,
       time: time || null,
       type,
       weight,
@@ -77,6 +79,31 @@ function EditForm({
               onChange={(e) => setDate(e.target.value)}
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-foreground"
             />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">
+              End Date
+              <span className="ml-1 font-normal text-muted">
+                (for multi-day windows, e.g. a testing centre exam)
+              </span>
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-foreground"
+              />
+              {endDate && (
+                <button
+                  onClick={() => setEndDate("")}
+                  className="rounded-md border border-border px-4 py-2.5 text-xs text-muted hover:bg-foreground/5 transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
 
           <div>
