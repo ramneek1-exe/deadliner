@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { DeadlineEvent, EventType } from "@/lib/types";
 
@@ -229,11 +230,11 @@ export function EditDrawer({ event, onSave, onClose }: EditDrawerProps) {
 
   const isExiting = closing;
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40"
+        className="fixed inset-0 z-[110]"
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.4)",
           backdropFilter: "blur(4px)",
@@ -245,7 +246,7 @@ export function EditDrawer({ event, onSave, onClose }: EditDrawerProps) {
 
       {/* Drawer */}
       <div
-        className={`fixed inset-x-0 bottom-0 top-auto rounded-t-xl max-h-[85vh] sm:top-0 sm:bottom-auto sm:right-0 sm:left-auto sm:rounded-none sm:max-h-full z-50 flex sm:h-full w-full max-w-full sm:max-w-md flex-col bg-background border border-border ${isExiting ? "drawer-panel-exit" : "drawer-panel"}`}
+        className={`fixed inset-x-0 bottom-0 top-auto rounded-t-xl max-h-[85vh] sm:top-0 sm:bottom-auto sm:right-0 sm:left-auto sm:rounded-none sm:max-h-full z-[111] flex sm:h-full w-full max-w-full sm:max-w-md flex-col bg-background border border-border ${isExiting ? "drawer-panel-exit" : "drawer-panel"}`}
         style={{
           boxShadow: "-12px 0 40px rgba(0, 0, 0, 0.2), -2px 0 8px rgba(0, 0, 0, 0.1)",
           animation: isExiting
@@ -269,6 +270,7 @@ export function EditDrawer({ event, onSave, onClose }: EditDrawerProps) {
           <EditForm key={event.id} event={event} onSave={onSave} onClose={handleClose} />
         )}
       </div>
-    </>
+    </>,
+    document.body
   );
 }

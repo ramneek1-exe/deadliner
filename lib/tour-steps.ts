@@ -12,7 +12,7 @@ export const TOUR_STEPS: TourStep[] = [
     id: "upload-dropzone",
     wizardStep: "upload",
     title: "Drop your files here",
-    body: "PDF, DOCX, XLSX, or an image all work — drag and drop, or click to browse.",
+    body: "PDF, DOCX, XLSX, or an image all work (drag and drop, or click to browse).",
   },
   {
     id: "upload-paste",
@@ -30,7 +30,7 @@ export const TOUR_STEPS: TourStep[] = [
     id: "review-row-edit",
     wizardStep: "review",
     title: "Edit anything",
-    body: "Click any date or time to edit it inline, or use the pencil icon for full details — location, notes, and more.",
+    body: "Click any date or time to edit it inline, or use the pencil icon for full details (location, notes, and more).",
   },
   {
     id: "review-export-button",
@@ -42,7 +42,7 @@ export const TOUR_STEPS: TourStep[] = [
     id: "export-primary-button",
     wizardStep: "export",
     title: "Add to your calendar",
-    body: "Add straight to your calendar app — we detect Apple, Google, or desktop automatically.",
+    body: "Add straight to your calendar app; we detect Apple, Google, or desktop automatically.",
   },
   {
     id: "export-copy-text",

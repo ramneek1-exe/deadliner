@@ -21,6 +21,7 @@ export default function Home() {
   const [events, setEvents] = useState<DeadlineEvent[]>([]);
   const [tourActive, setTourActive] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [dropzoneInView, setDropzoneInView] = useState(false);
 
   const handleEventsExtracted = (extracted: DeadlineEvent[]) => {
     setEvents(extracted);
@@ -30,6 +31,7 @@ export default function Home() {
   const handleReset = () => {
     setStep("upload");
     setEvents([]);
+    setDropzoneInView(false);
   };
 
   const handleTourStart = () => {
@@ -50,6 +52,10 @@ export default function Home() {
     setTourActive(false);
   };
 
+  const currentTourStop = tourActive ? TOUR_STEPS[tourIndex] : undefined;
+  const tourShowingForCurrentStep =
+    !!currentTourStop && currentTourStop.wizardStep === step;
+
   // Continuity: when the wizard step changes while the tour is running,
   // jump to that step's first stop so the tour follows the user forward.
   // Intentionally excludes tourActive from deps — handleTourStart already
@@ -59,6 +65,21 @@ export default function Home() {
     if (!tourActive) return;
     setTourIndex(firstTourIndexForStep(step));
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  // Scroll-driven CTA reveal on the Upload step: only show the tour CTA
+  // once the dropzone has scrolled into view, and hide it again if the
+  // user scrolls back away from it.
+  useEffect(() => {
+    if (step !== "upload") return;
+    const el = document.querySelector('[data-tour="upload-dropzone"]');
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setDropzoneInView(entry.isIntersecting),
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [step]);
 
   return (
@@ -83,7 +104,10 @@ export default function Home() {
         <ExportStep events={events} onReset={handleReset} />
       )}
 
-      {!tourActive && <TourCTA onStart={handleTourStart} />}
+      <TourCTA
+        onStart={handleTourStart}
+        visible={!tourShowingForCurrentStep && (step !== "upload" || dropzoneInView)}
+      />
       <Tour
         step={step}
         active={tourActive}
