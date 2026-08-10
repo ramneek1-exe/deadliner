@@ -1,44 +1,32 @@
 import { createEvents, type EventAttributes } from "ics";
 import type { DeadlineEvent } from "@/lib/types";
-
-function isValidDate(dateStr: string): boolean {
-  if (!dateStr) return false;
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return !isNaN(y) && !isNaN(m) && !isNaN(d) && y > 0 && m >= 1 && m <= 12 && d >= 1 && d <= 31;
-}
-
-// Inclusive day count between two YYYY-MM-DD dates. Returns 1 for the same
-// date. Callers must have already validated both dates with isValidDate.
-function daysBetweenInclusive(startStr: string, endStr: string): number {
-  const [ys, ms, ds] = startStr.split("-").map(Number);
-  const [ye, me, de] = endStr.split("-").map(Number);
-  const start = new Date(ys, ms - 1, ds);
-  const end = new Date(ye, me - 1, de);
-  const diffDays = Math.round((end.getTime() - start.getTime()) / 86_400_000);
-  return diffDays + 1;
-}
+import { isValidDate, getSpanDays } from "@/lib/date-range";
 
 export function generateICS(events: DeadlineEvent[]): Blob {
   const icsEvents: EventAttributes[] = events
     .filter((event) => isValidDate(event.date))
     .map((event) => {
       const [y, m, d] = event.date.split("-").map(Number);
-
-      const hasValidRange = event.endDate !== null && isValidDate(event.endDate);
-      const spanDays = hasValidRange
-        ? daysBetweenInclusive(event.date, event.endDate as string)
-        : 1;
+      const spanDays = getSpanDays(event.date, event.endDate);
 
       if (spanDays >= 2) {
         // Ranged events are always all-day, per the multi-day window design
         // decision — time is ignored even if the source mentioned specific
-        // open/close hours.
+        // open/close hours. Use an exclusive end date (the day after
+        // endDate) rather than `duration`, matching iCalendar all-day-event
+        // semantics and giving calendar clients a real DTEND.
+        const [ey, em, ed] = (event.endDate as string).split("-").map(Number);
+        const endExclusive = new Date(ey, em - 1, ed + 1);
         return {
           title: event.title,
           description: event.notes || undefined,
           location: event.location || undefined,
           start: [y, m, d] as [number, number, number],
-          duration: { days: spanDays },
+          end: [
+            endExclusive.getFullYear(),
+            endExclusive.getMonth() + 1,
+            endExclusive.getDate(),
+          ] as [number, number, number],
         };
       }
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Pencil, Trash2, ChevronDown, ChevronRight, MapPin } from "lucide-react";
 import { EditDrawer } from "@/components/EditDrawer";
 import type { DeadlineEvent } from "@/lib/types";
+import { isMultiDayRange } from "@/lib/date-range";
 
 interface ReviewStepProps {
   events: DeadlineEvent[];
@@ -24,8 +25,8 @@ function formatDate(dateStr: string): string {
 }
 
 function formatDateDisplay(dateStr: string, endDateStr: string | null): string {
-  if (!endDateStr) return formatDate(dateStr);
-  return `${formatDate(dateStr)} – ${formatDate(endDateStr)}`;
+  if (!isMultiDayRange(dateStr, endDateStr)) return formatDate(dateStr);
+  return `${formatDate(dateStr)} – ${formatDate(endDateStr as string)}`;
 }
 
 function formatTime(time: string | null): string {

@@ -5,6 +5,7 @@ import { Download } from "lucide-react";
 import { CheckCircleFill, Copy } from "geist-icons";
 import { generateICS } from "@/lib/generate-ics";
 import type { DeadlineEvent } from "@/lib/types";
+import { isMultiDayRange } from "@/lib/date-range";
 
 interface ExportStepProps {
   events: DeadlineEvent[];
@@ -53,8 +54,19 @@ function formatEventsAsText(events: DeadlineEvent[]): string {
         day: "numeric",
         year: "numeric",
       });
+      let dateRangeStr = dateStr;
+      if (isMultiDayRange(e.date, e.endDate)) {
+        const [ey, em, ed] = (e.endDate as string).split("-").map(Number);
+        const endDateStr = new Date(ey, em - 1, ed).toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+        dateRangeStr = `${dateStr} – ${endDateStr}`;
+      }
       const timeStr = e.time ? ` at ${e.time}` : "";
-      lines.push(`  - ${e.title} — ${dateStr}${timeStr}`);
+      lines.push(`  - ${e.title} — ${dateRangeStr}${timeStr}`);
     }
     lines.push("");
   }
