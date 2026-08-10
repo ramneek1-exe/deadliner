@@ -133,18 +133,18 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
       <div className="mt-8 flex flex-col items-center gap-3">
         {/* Platform-specific primary button — real <a> tags for mobile compatibility */}
         {platform === "ios" ? (
-          <a href={blobUrl} className={linkClasses}>
+          <a href={blobUrl} data-tour="export-primary-button" className={linkClasses}>
             <AppleLogo className="h-4 w-4" />
             Add to Apple Calendar
           </a>
         ) : platform === "android" ? (
-          <a href={blobUrl} className={linkClasses}>
+          <a href={blobUrl} data-tour="export-primary-button" className={linkClasses}>
             <GoogleCalendarLogo className="h-4 w-4" />
             Add to Google Calendar
           </a>
         ) : (
           // eslint-disable-next-line @next/next/no-html-link-for-pages
-          <a href="#" onClick={handleDownload} className={linkClasses}>
+          <a href="#" onClick={handleDownload} data-tour="export-primary-button" className={linkClasses}>
             <Download className="h-4 w-4" />
             Download .ics
           </a>
@@ -161,7 +161,7 @@ export function ExportStep({ events, onReset }: ExportStepProps) {
         )}
 
         {/* Copy as text */}
-        <button onClick={handleCopyText} className={secondaryClasses}>
+        <button onClick={handleCopyText} data-tour="export-copy-text" className={secondaryClasses}>
           {copied ? (
             <CheckCircleFill className="h-3.5 w-3.5" />
           ) : (

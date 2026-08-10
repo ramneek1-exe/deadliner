@@ -192,7 +192,7 @@ export function ReviewStep({
       {/* Course sections */}
       <div className="flex flex-col gap-4">
         {Array.from(courseGroups.entries()).map(
-          ([course, courseEvents]) => {
+          ([course, courseEvents], courseIdx) => {
             const isCollapsed = collapsedCourses.has(course);
             const isEditing = editingCourseName === course;
 
@@ -202,7 +202,10 @@ export function ReviewStep({
                 className="rounded-lg border border-border"
               >
                 {/* Course header */}
-                <div className="flex items-center gap-2 px-4 py-3">
+                <div
+                  className="flex items-center gap-2 px-4 py-3"
+                  data-tour={courseIdx === 0 ? "review-course-header" : undefined}
+                >
                   <button
                     onClick={() => toggleCourse(course)}
                     className="flex items-center gap-2 flex-1 min-w-0 text-left"
@@ -275,10 +278,15 @@ export function ReviewStep({
                           </tr>
                         </thead>
                         <tbody>
-                          {courseEvents.map((event) => (
+                          {courseEvents.map((event, eventIdx) => (
                             <tr
                               key={event.id}
                               className="border-t border-border last:border-b-0"
+                              data-tour={
+                                courseIdx === 0 && eventIdx === 0
+                                  ? "review-row-edit"
+                                  : undefined
+                              }
                             >
                               <td className="px-4 py-2.5 font-medium">
                                 {event.title}
@@ -385,10 +393,15 @@ export function ReviewStep({
 
                     {/* Mobile cards */}
                     <div className="flex flex-col gap-3 p-3 md:hidden">
-                      {courseEvents.map((event) => (
+                      {courseEvents.map((event, eventIdx) => (
                         <div
                           key={event.id}
                           className="rounded-lg border border-border p-4"
+                          data-tour={
+                            courseIdx === 0 && eventIdx === 0
+                              ? "review-row-edit"
+                              : undefined
+                          }
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -501,6 +514,7 @@ export function ReviewStep({
       <div className="mt-8 flex items-center justify-center gap-3">
         <button
           onClick={onExport}
+          data-tour="review-export-button"
           className="rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-background hover:opacity-90 transition-opacity"
         >
           Export Calendar

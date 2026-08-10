@@ -260,6 +260,7 @@ export function UploadStep({ onEventsExtracted }: UploadStepProps) {
       {/* Dropzone */}
       <div
         {...getRootProps()}
+        data-tour="upload-dropzone"
         className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-8 sm:p-16 transition-colors ${isFull
             ? "pointer-events-none border-border opacity-50"
             : isDragActive
@@ -297,6 +298,7 @@ export function UploadStep({ onEventsExtracted }: UploadStepProps) {
         <button
           onClick={() => setShowTextModal(true)}
           disabled={isFull}
+          data-tour="upload-paste"
           className="flex items-center gap-2 rounded-md border border-dashed border-border px-4 py-2.5 text-sm font-medium text-muted hover:border-foreground/50 hover:text-foreground transition-colors disabled:opacity-40"
         >
           <ClipboardPaste className="h-4 w-4" />
