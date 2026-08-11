@@ -21,6 +21,7 @@ export default function Home() {
   const [events, setEvents] = useState<DeadlineEvent[]>([]);
   const [tourActive, setTourActive] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
+  const [tourVisible, setTourVisible] = useState(false);
   const [dropzoneInView, setDropzoneInView] = useState(false);
 
   const handleEventsExtracted = (extracted: DeadlineEvent[]) => {
@@ -51,10 +52,6 @@ export default function Home() {
   const handleTourDismiss = () => {
     setTourActive(false);
   };
-
-  const currentTourStop = tourActive ? TOUR_STEPS[tourIndex] : undefined;
-  const tourShowingForCurrentStep =
-    !!currentTourStop && currentTourStop.wizardStep === step;
 
   // Continuity: when the wizard step changes while the tour is running,
   // jump to that step's first stop so the tour follows the user forward.
@@ -106,7 +103,7 @@ export default function Home() {
 
       <TourCTA
         onStart={handleTourStart}
-        visible={!tourShowingForCurrentStep && (step !== "upload" || dropzoneInView)}
+        visible={!tourVisible && (step !== "upload" || dropzoneInView)}
       />
       <Tour
         step={step}
@@ -114,6 +111,7 @@ export default function Home() {
         index={tourIndex}
         onNext={handleTourNext}
         onDismiss={handleTourDismiss}
+        onVisibilityChange={setTourVisible}
       />
     </AppShell>
   );

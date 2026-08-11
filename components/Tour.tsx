@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import type { WizardStep } from "@/lib/types";
 import { TOUR_STEPS } from "@/lib/tour-steps";
@@ -11,6 +11,7 @@ interface TourProps {
   index: number;
   onNext: () => void;
   onDismiss: () => void;
+  onVisibilityChange: (visible: boolean) => void;
 }
 
 interface Rect {
@@ -34,10 +35,17 @@ const TOOLTIP_HEIGHT_ESTIMATE = 150;
 const TOOLTIP_GAP = 12;
 const VIEWPORT_MARGIN = 12;
 
-export function Tour({ step, active, index, onNext, onDismiss }: TourProps) {
+export function Tour({ step, active, index, onNext, onDismiss, onVisibilityChange }: TourProps) {
   const [rect, setRect] = useState<Rect | null>(null);
   const current = active ? TOUR_STEPS[index] : undefined;
   const isCurrentStopVisible = !!current && current.wizardStep === step;
+  const isVisible = isCurrentStopVisible && !!rect && !!current;
+  const lastScrolledId = useRef<string | null>(null);
+
+  useEffect(() => {
+    onVisibilityChange(isVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
 
   useEffect(() => {
     if (!isCurrentStopVisible || !current) {
@@ -50,6 +58,10 @@ export function Tour({ step, active, index, onNext, onDismiss }: TourProps) {
       if (!el) {
         setRect(null);
         return;
+      }
+      if (lastScrolledId.current !== current!.id) {
+        lastScrolledId.current = current!.id;
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
       }
       const r = el.getBoundingClientRect();
       setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
@@ -79,7 +91,7 @@ export function Tour({ step, active, index, onNext, onDismiss }: TourProps) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [active, onDismiss]);
 
-  if (!isCurrentStopVisible || !rect || !current) return null;
+  if (!isVisible || !current) return null;
 
   const spotTop = rect.top - SPOTLIGHT_PADDING;
   const spotLeft = rect.left - SPOTLIGHT_PADDING;
@@ -93,9 +105,13 @@ export function Tour({ step, active, index, onNext, onDismiss }: TourProps) {
 
   const spaceBelow = vh - spotBottom;
   const placeBelow = spaceBelow > TOOLTIP_HEIGHT_ESTIMATE + TOOLTIP_GAP;
-  const tooltipTop = placeBelow
+  const rawTooltipTop = placeBelow
     ? spotBottom + TOOLTIP_GAP
     : Math.max(VIEWPORT_MARGIN, spotTop - TOOLTIP_HEIGHT_ESTIMATE - TOOLTIP_GAP);
+  const tooltipTop = Math.min(
+    rawTooltipTop,
+    vh - TOOLTIP_HEIGHT_ESTIMATE - VIEWPORT_MARGIN
+  );
   const tooltipLeft = Math.min(
     Math.max(VIEWPORT_MARGIN, spotLeft),
     vw - TOOLTIP_WIDTH - VIEWPORT_MARGIN
