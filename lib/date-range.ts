@@ -20,7 +20,8 @@ export function daysBetweenInclusive(startStr: string, endStr: string): number {
 // date — this is also how malformed ranges clamp to single-day behavior.
 export function getSpanDays(date: string, endDate: string | null): number {
   if (endDate === null || !isValidDate(endDate)) return 1;
-  return daysBetweenInclusive(date, endDate);
+  const span = daysBetweenInclusive(date, endDate);
+  return span >= 1 ? span : 1;
 }
 
 export function isMultiDayRange(date: string, endDate: string | null): boolean {
