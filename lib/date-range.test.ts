@@ -44,6 +44,14 @@ describe("daysBetweenInclusive", () => {
   it("counts a span crossing a year boundary", () => {
     expect(daysBetweenInclusive("2025-12-30", "2026-01-02")).toBe(4);
   });
+
+  it("counts a span crossing a DST spring-forward boundary", () => {
+    expect(daysBetweenInclusive("2026-03-07", "2026-03-09")).toBe(3);
+  });
+
+  it("counts a span crossing a DST fall-back boundary", () => {
+    expect(daysBetweenInclusive("2026-10-31", "2026-11-02")).toBe(3);
+  });
 });
 
 describe("getSpanDays", () => {

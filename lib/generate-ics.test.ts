@@ -31,7 +31,10 @@ describe("generateICS", () => {
     const blob = generateICS([baseEvent({ time: "14:00", course: "CS 101" })]);
     const text = await blob.text();
     expect(text).toContain("SUMMARY:CS 101: Midterm Exam");
-    expect(text).toMatch(/DTSTART:20260315T\d{6}Z/);
+    const expectedDtstart = new Date(2026, 2, 15, 14, 0)
+      .toISOString()
+      .replace(/[-:]|\.\d{3}/g, "");
+    expect(text).toContain(`DTSTART:${expectedDtstart}`);
     expect(text).toContain("DURATION:PT1H");
   });
 
@@ -60,7 +63,7 @@ describe("generateICS", () => {
   });
 
   it("omits LOCATION when empty", async () => {
-    const blob = generateICS([baseEvent({ location: "" })]);
+    const blob = generateICS([baseEvent()]);
     const text = await blob.text();
     expect(text).not.toContain("LOCATION:");
   });

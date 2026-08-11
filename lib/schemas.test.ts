@@ -72,6 +72,11 @@ describe("aiEventSchema type normalization", () => {
   it("falls back to Other for unrecognized types", () => {
     expect(parseEvent({ type: "field trip" }).type).toBe("Other");
   });
+
+  it("resolves keyword collisions by priority order", () => {
+    expect(parseEvent({ type: "reading assignment" }).type).toBe("Assignment");
+    expect(parseEvent({ type: "reading quiz" }).type).toBe("Exam");
+  });
 });
 
 describe("aiEventSchema defaults", () => {
@@ -83,6 +88,10 @@ describe("aiEventSchema defaults", () => {
     expect(event.notes).toBe("");
     expect(event.course).toBe("");
     expect(event.location).toBe("");
+  });
+
+  it("normalizes endDate through the same transform as date", () => {
+    expect(parseEvent({ endDate: "2026-1-5" }).endDate).toBe("2026-01-05");
   });
 });
 
