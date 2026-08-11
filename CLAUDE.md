@@ -67,4 +67,4 @@ A Next.js app that converts course syllabi (PDF, DOCX, XLSX, images, pasted text
 
 ## Versioning
 
-Current: **v0.3.0**
+Current: **v0.4.0**

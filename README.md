@@ -1,6 +1,6 @@
 # Deadliner
 
-**Turn your course syllabi into a calendar in seconds.**
+**v0.4.0** · **Turn your course syllabi into a calendar in seconds.**
 
 Deadliner is a web app that reads your syllabus files — PDF, DOCX, XLSX, images, or pasted text — uses AI to extract every deadline, and exports them as a single `.ics` file you can import into any calendar app.
 

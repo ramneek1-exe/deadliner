@@ -8,7 +8,7 @@ Living status doc. Update at start/end of each work session. Don't duplicate con
 - Wizard: `upload` → `review` → `export`, state in `app/page.tsx`.
 - Parse pipeline: `app/api/parse/route.ts` — text extraction (`unpdf`/`mammoth`/`xlsx`) or vision (images) → OpenAI (`gpt-5.6-luna` text, `gpt-5.6-terra` vision) → Zod validation (`lib/schemas.ts`) → `DeadlineEvent[]` (`lib/types.ts`).
 - Rate limit: in-memory sliding window, 15 req/min/IP (resets on cold start — known limitation).
-- Version drift: CLAUDE.md says v0.3.0, `package.json` still `0.1.0` — unreconciled, not yet addressed.
+- Version: v0.4.0 across `package.json`, `README.md`, and `CLAUDE.md` (synced 2026-08-10, was drifted before).
 - Prior design work lives in `docs/plans/` (multi-file upload design + implementation, 2026-02-17).
 
 ## Current initiative: 3 requested features (2026-08-09)
