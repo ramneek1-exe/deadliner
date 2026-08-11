@@ -18,6 +18,7 @@ function seededRandom(seed: number): () => number {
 
 interface HeroHeaderProps {
   children?: React.ReactNode;
+  onLogoClick: () => void;
 }
 
 const SCROLL_DISTANCE = 600;
@@ -91,7 +92,7 @@ function generateBlurbConfigs(): BlurbConfig[] {
   }));
 }
 
-export function HeroHeader({ children }: HeroHeaderProps) {
+export function HeroHeader({ children, onLogoClick }: HeroHeaderProps) {
   const rawT = useScrollProgress(SCROLL_DISTANCE);
   const t = easeInOutQuad(rawT);
 
@@ -278,7 +279,15 @@ export function HeroHeader({ children }: HeroHeaderProps) {
                 willChange: "transform",
               }}
             >
-              <Logo className="shrink-0" size="clamp(2.4rem, 9.6vw, 6.4rem)" />
+              <button
+                type="button"
+                onClick={onLogoClick}
+                className="shrink-0 text-foreground transition-opacity hover:opacity-70"
+                aria-label="Reset"
+                style={{ lineHeight: 0 }}
+              >
+                <Logo size="clamp(2.4rem, 9.6vw, 6.4rem)" />
+              </button>
               <div style={{ position: "relative" }}>
                 <h1
                   style={{

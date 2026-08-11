@@ -8,15 +8,16 @@ import { Logo } from "@/components/Logo";
 interface AppShellProps {
   children: React.ReactNode;
   step: WizardStep;
+  onLogoClick: () => void;
 }
 
-export function AppShell({ children, step }: AppShellProps) {
+export function AppShell({ children, step, onLogoClick }: AppShellProps) {
   const isUpload = step === "upload";
 
   return (
     <div className="min-h-screen bg-background">
       {isUpload ? (
-        <HeroHeader>
+        <HeroHeader onLogoClick={onLogoClick}>
           <StepIndicator currentStep={step} compact />
         </HeroHeader>
       ) : (
@@ -29,8 +30,15 @@ export function AppShell({ children, step }: AppShellProps) {
         >
           <div className="flex items-center justify-between pr-3">
             <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tighter text-foreground">
-              <Logo size={28} />
-              Deadliner
+              <button
+                type="button"
+                onClick={onLogoClick}
+                className="flex items-center gap-2 text-foreground transition-opacity hover:opacity-70"
+                aria-label="Back to upload"
+              >
+                <Logo size={28} />
+                Deadliner
+              </button>
             </h1>
             <StepIndicator currentStep={step} compact />
           </div>

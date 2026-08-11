@@ -23,6 +23,7 @@ export default function Home() {
   const [tourIndex, setTourIndex] = useState(0);
   const [tourVisible, setTourVisible] = useState(false);
   const [dropzoneInView, setDropzoneInView] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   const handleEventsExtracted = (extracted: DeadlineEvent[]) => {
     setEvents(extracted);
@@ -33,6 +34,7 @@ export default function Home() {
     setStep("upload");
     setEvents([]);
     setDropzoneInView(false);
+    setResetKey((k) => k + 1);
   };
 
   const handleTourStart = () => {
@@ -80,10 +82,10 @@ export default function Home() {
   }, [step]);
 
   return (
-    <AppShell step={step}>
+    <AppShell step={step} onLogoClick={handleReset}>
       {step === "upload" && (
         <>
-          <UploadStep onEventsExtracted={handleEventsExtracted} />
+          <UploadStep key={resetKey} onEventsExtracted={handleEventsExtracted} />
           <Faq />
         </>
       )}
