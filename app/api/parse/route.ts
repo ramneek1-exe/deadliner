@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { aiResponseSchema } from "@/lib/schemas";
 import type { DeadlineEvent, ParseResponse, ParseErrorResponse } from "@/lib/types";
+import type ExcelJSType from "exceljs";
 
 // --- Rate Limiting (15 requests/min per IP, in-memory sliding window) ---
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -42,7 +43,6 @@ const ACCEPTED_MIME_TYPES = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-excel",
   "image/jpeg",
   "image/png",
   "image/heic",
@@ -140,13 +140,26 @@ async function extractTextFromDOCX(buffer: ArrayBuffer): Promise<string> {
 }
 
 async function extractTextFromXLSX(buffer: ArrayBuffer): Promise<string> {
-  const XLSX = await import("xlsx");
-  const workbook = XLSX.read(new Uint8Array(buffer), { type: "array" });
+  const ExcelJS = (await import("exceljs")).default;
+  const workbook = new ExcelJS.Workbook();
+  // exceljs declares its own module-local `Buffer` type (`extends
+  // ArrayBuffer`) distinct from Node's real (global) `Buffer` — so a
+  // genuine Node Buffer fails structural type-checking against
+  // `load()`'s parameter, and exceljs's own type isn't nameable from
+  // outside its module. This is a known upstream typing issue; `any`
+  // here reflects that, not a real runtime mismatch (a Buffer is exactly
+  // what `load()` expects and handles).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await workbook.xlsx.load(Buffer.from(buffer) as any);
   const parts: string[] = [];
-  for (const sheetName of workbook.SheetNames) {
-    const sheet = workbook.Sheets[sheetName];
-    parts.push(`--- ${sheetName} ---`);
-    parts.push(XLSX.utils.sheet_to_csv(sheet));
+  for (const sheet of workbook.worksheets) {
+    parts.push(`--- ${sheet.name} ---`);
+    const rows: string[] = [];
+    sheet.eachRow((row) => {
+      const cells = (row.values as ExcelJSType.CellValue[]).slice(1); // index 0 is unused by exceljs
+      rows.push(cells.map((cell) => (cell == null ? "" : String(cell))).join(","));
+    });
+    parts.push(rows.join("\n"));
   }
   return parts.join("\n");
 }
@@ -159,7 +172,6 @@ async function extractText(file: File): Promise<string> {
     case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
       return extractTextFromDOCX(buffer);
     case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-    case "application/vnd.ms-excel":
       return extractTextFromXLSX(buffer);
     default:
       throw new Error(`Unsupported file type: ${file.type}`);

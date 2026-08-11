@@ -86,7 +86,7 @@ Users drop files or paste syllabus text. Each file is processed independently an
 
 Each file hits `POST /api/parse`:
 
-1. **Text extraction** — PDF via `unpdf`, DOCX via `mammoth`, XLSX via `xlsx`
+1. **Text extraction** — PDF via `unpdf`, DOCX via `mammoth`, XLSX via `exceljs`
 2. **Images** — sent directly to `gpt-5.6-terra` as base64 data URLs (vision)
 3. **AI extraction** — `gpt-5.6-luna` (text) or `gpt-5.6-terra` (images), with output constrained to a strict JSON schema
 4. **Validation** — Zod schemas normalize dates, times, and event types; a malformed response fails the request cleanly so no deadline is silently dropped
@@ -164,7 +164,7 @@ Extracts deadline events from a file or pasted text.
 |---|---|---|
 | PDF | `application/pdf` | 5 MB |
 | DOCX | `application/vnd.openxmlformats-officedocument.wordprocessingml.document` | 5 MB |
-| XLSX / XLS | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | 5 MB |
+| XLSX | `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` | 5 MB |
 | JPEG | `image/jpeg` | 10 MB |
 | PNG | `image/png` | 10 MB |
 | HEIC / HEIF | `image/heic`, `image/heif` | 10 MB |
@@ -250,7 +250,7 @@ interface FileQueueItem {
 | AI | OpenAI `gpt-5.6-luna` (text), `gpt-5.6-terra` (images) |
 | PDF parsing | `unpdf` |
 | DOCX parsing | `mammoth` |
-| XLSX parsing | `xlsx` |
+| XLSX parsing | `exceljs` |
 | Schema validation | `zod` |
 | Calendar generation | `ics` |
 | File upload UI | `react-dropzone` |

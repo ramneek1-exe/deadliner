@@ -29,7 +29,6 @@ const ACCEPTED_TYPES: Record<string, string[]> = {
   "application/pdf": [".pdf"],
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
-  "application/vnd.ms-excel": [".xls"],
   "image/jpeg": [".jpeg", ".jpg"],
   "image/png": [".png"],
   "image/heic": [".heic"],
